@@ -1785,7 +1785,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
                                     <div className="space-y-3 max-h-64 overflow-y-auto">
                                       {(receipt.analysis?.warnings || []).map((warning, index) => (
                                         <div key={index} className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                                          <p className="text-sm text-red-800 dark:text-red-200">{warning}</p>
+                                          <p className="text-sm text-red-800 dark:text-red-200">{typeof warning === 'string' ? warning : warning.message}</p>
                                         </div>
                                       ))}
                                     </div>
@@ -1806,7 +1806,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
                                     <div className="space-y-3 max-h-64 overflow-y-auto">
                                       {(receipt.analysis?.suggestions || []).map((suggestion, index) => (
                                         <div key={index} className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                                          <p className="text-sm text-green-800 dark:text-green-200">{suggestion}</p>
+                                          <p className="text-sm text-green-800 dark:text-green-200">{typeof suggestion === 'string' ? suggestion : suggestion.description}</p>
                                         </div>
                                       ))}
                                     </div>

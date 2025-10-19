@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { 
   X, 
   Send, 
-  MessageCircle, 
   Bot,
   User
 } from 'lucide-react';

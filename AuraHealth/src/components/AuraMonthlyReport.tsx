@@ -13,7 +13,7 @@ import {
   Row,
   Column,
 } from "@react-email/components";
-import * as React from "react";
+// import React from "react";
 
 interface AuraMonthlyReportProps {
   userName: string;
@@ -86,7 +86,7 @@ export const AuraMonthlyReport = ({
               <div style={scoreCircle}>
                 <Text style={scoreNumber}>{auraScore}</Text>
               </div>
-              <Text style={scoreDescription}>{scoreDescription}</Text>
+              <Text style={scoreDescriptionStyle}>{scoreDescription}</Text>
             </div>
           </Section>
 
@@ -264,7 +264,7 @@ const scoreNumber = {
   margin: "0",
 };
 
-const scoreDescription = {
+const scoreDescriptionStyle = {
   color: "#095d7e",
   fontSize: "16px",
   margin: "0",

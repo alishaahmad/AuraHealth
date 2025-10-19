@@ -7,19 +7,13 @@ import {
   Camera, 
   Shield, 
   Brain, 
-  Star,
   Menu,
   X,
   Smartphone,
-  Receipt,
   AlertTriangle,
   CheckCircle,
   ArrowRight,
   Sparkles,
-  Heart,
-  Zap,
-  Users,
-  Award,
   Globe,
   Download,
   Play,
@@ -27,10 +21,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Apple,
-  TrendingUp,
-  Clock,
-  Target,
-  ShieldCheck
+  Target
 } from 'lucide-react';
 
 interface LandingPageProps {

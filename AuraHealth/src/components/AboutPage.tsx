@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   ArrowLeft, 
@@ -23,7 +23,7 @@ interface AboutPageProps {
   onSubscribeNewsletter: (email: string) => void;
 }
 
-export function AboutPage({ onBackToHome, onNavigateToDashboard, onSubscribeNewsletter }: AboutPageProps) {
+export function AboutPage({ onBackToHome, onNavigateToDashboard }: AboutPageProps) {
   return (
     <div className="min-h-screen galaxy-bg">
       {/* Navigation */}
