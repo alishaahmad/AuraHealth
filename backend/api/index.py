@@ -306,20 +306,80 @@ async def process_receipt(
             }}
         ])
         
-        # Parse JSON response
+        # Parse JSON response (Gemini often returns markdown around JSON; be defensive)
+        text_output = getattr(response, 'text', None) or str(response)
         try:
-            analysis_data = json.loads(response.text)
-        except json.JSONDecodeError:
-            # Fallback if JSON parsing fails - provide minimal but useful content
+            analysis_data = json.loads(text_output)
+        except Exception:
+            # Try to extract a JSON block from the output
+            import re
+            match = re.search(r"\{[\s\S]*\}", text_output)
+            if match:
+                try:
+                    analysis_data = json.loads(match.group(0))
+                except Exception:
+                    analysis_data = None
+            else:
+                analysis_data = None
+
+        # If we still don't have structured data or items are empty, transcribe and heuristically parse
+        if not analysis_data or not analysis_data.get("items"):
+            try:
+                transcribe_prompt = "Transcribe this receipt image into plain text exactly as printed."
+                t_resp = model.generate_content([
+                    transcribe_prompt,
+                    {"inline_data": {
+                        "mime_type": (file.content_type if file is not None else "image/png"),
+                        "data": base64_image
+                    }}
+                ])
+                raw_text = getattr(t_resp, 'text', None) or text_output or ""
+            except Exception:
+                raw_text = text_output or ""
+
+            # Heuristic parse of items and totals
+            import re
+            items = []
+            subtotal = 0.0
+            tax = 0.0
+            total = 0.0
+            for line in raw_text.splitlines():
+                l = line.strip()
+                if not l:
+                    continue
+                # capture price at end of line
+                m = re.search(r"(.*?)(\$?\d+\.\d{2})\s*$", l)
+                if m:
+                    name = m.group(1).strip(" -:\t").lower()
+                    price = float(m.group(2).replace("$", ""))
+                    if any(k in name for k in ["subtotal", "sub total", "sub-total"]):
+                        subtotal = price
+                        continue
+                    if "tax" in name:
+                        tax = price
+                        continue
+                    if "total" in name:
+                        total = price
+                        continue
+                    # likely an item
+                    items.append({
+                        "name": name.title() or "Item",
+                        "price": price,
+                        "quantity": 1,
+                        "category": "general"
+                    })
+            if not subtotal:
+                subtotal = round(sum(i["price"] for i in items), 2)
+            if not total:
+                total = round(subtotal + tax, 2)
+
             analysis_data = {
                 "store_name": "Scanned Store",
-                "raw_text": "Unable to parse structured data, showing raw text only.",
-                "items": [
-                    {"name": "Grocery Items", "price": 0.0, "quantity": 1, "category": "general"}
-                ],
-                "subtotal": 0,
-                "tax": 0,
-                "total": 0,
+                "raw_text": raw_text or "",
+                "items": items or [{"name": "Grocery Items", "price": 0.0, "quantity": 1, "category": "general"}],
+                "subtotal": subtotal,
+                "tax": tax,
+                "total": total,
                 "red_flags": [],
                 "budget_swaps": [],
                 "healthy_swaps": [],
