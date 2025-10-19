@@ -1,0 +1,264 @@
+{
+  "receipt_data": {
+    "store_name": "Unknown",
+    "raw_text": "DATE 06/01/2016 WED\n********************************\nZUCHINNI GREEN $4.66\n0.778kg NET @ $5.99/kg\nBANANA CAVENDISH $1.32\n0.442kg NET @ $2.99/kg\nSPECIAL $0.99\nSPECIAL $1.50\nPOTATOES BRUSHED $3.97\n1.328kg NET@ $2.99/kg\nBROCCOLI $4.84\n0.808kg NET@ $5.99/kg\nBRUSSEL SPROUTS $5.15\n0.322kg NET $15.99/kg\nSPECIAL $0.99\nGRAPES GREEN $7.03\n1.174kg NET $5.99/kg\nPEAS SNOW $3.27\n0.218kg NET@ $14.99/kg\nTOMATOES GRAPE $2.99\nLETTUCE ICEBERG $2.49\nSUBTOTAL $39.20\nLOYALTY -15.00\nSUBTOTAL $24.20\nSUBTOTAL $24.20\nSUBTOTAL $24.20\nTOTAL. $24.20\nCASH $50.00\nCHANGE $25.80",
+    "items": [
+      {
+        "name": "ZUCHINNI GREEN",
+        "price": 4.66,
+        "quantity": 0.778,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 3,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 2,
+          "sodium": 8,
+          "calories": 20
+        }
+      },
+      {
+        "name": "BANANA CAVENDISH",
+        "price": 1.32,
+        "quantity": 0.442,
+        "category": "fruits",
+        "nutrition": {
+          "carbohydrates": 23,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 3,
+          "sugar": 12,
+          "sodium": 1,
+          "calories": 105
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 0.99,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 1.5,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "POTATOES BRUSHED",
+        "price": 3.97,
+        "quantity": 1.328,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 17,
+          "protein": 2,
+          "fats": 0,
+          "fiber": 2,
+          "sugar": 1,
+          "sodium": 6,
+          "calories": 77
+        }
+      },
+      {
+        "name": "BROCCOLI",
+        "price": 4.84,
+        "quantity": 0.808,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 6,
+          "protein": 3,
+          "fats": 0,
+          "fiber": 2,
+          "sugar": 2,
+          "sodium": 30,
+          "calories": 34
+        }
+      },
+      {
+        "name": "BRUSSEL SPROUTS",
+        "price": 5.15,
+        "quantity": 0.322,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 9,
+          "protein": 3,
+          "fats": 0,
+          "fiber": 4,
+          "sugar": 2,
+          "sodium": 25,
+          "calories": 43
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 0.99,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "GRAPES GREEN",
+        "price": 7.03,
+        "quantity": 1.174,
+        "category": "fruits",
+        "nutrition": {
+          "carbohydrates": 18,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 15,
+          "sodium": 2,
+          "calories": 69
+        }
+      },
+      {
+        "name": "PEAS SNOW",
+        "price": 3.27,
+        "quantity": 0.218,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 8,
+          "protein": 3,
+          "fats": 0,
+          "fiber": 2,
+          "sugar": 5,
+          "sodium": 5,
+          "calories": 42
+        }
+      },
+      {
+        "name": "TOMATOES GRAPE",
+        "price": 2.99,
+        "quantity": 1,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 4,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 2,
+          "sodium": 5,
+          "calories": 18
+        }
+      },
+      {
+        "name": "LETTUCE ICEBERG",
+        "price": 2.49,
+        "quantity": 1,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 2,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 1,
+          "sodium": 5,
+          "calories": 14
+        }
+      }
+    ],
+    "subtotal": 39.2,
+    "tax": 0.0,
+    "total": 24.2,
+    "red_flags": [],
+    "budget_swaps": [
+      "Potatoes: Consider purchasing regular potatoes instead of brushed potatoes."
+    ],
+    "healthy_swaps": [
+      {
+        "item": "Lettuce Iceberg",
+        "swap": "Lettuce Romaine",
+        "reason": "Romaine lettuce offers more nutrients, including vitamins A and C, compared to Iceberg lettuce."
+      }
+    ],
+    "meal_plan": [
+      {
+        "name": "Simple Salad",
+        "uses": [
+          "Lettuce Iceberg",
+          "Tomatoes Grape",
+          "Grapes Green"
+        ]
+      },
+      {
+        "name": "Roasted Vegetables",
+        "uses": [
+          "Broccoli",
+          "Brussel Sprouts",
+          "Zuchinni Green",
+          "Potatoes Brushed"
+        ]
+      },
+      {
+        "name": "Fruit and Veggie Snack",
+        "uses": [
+          "Banana Cavendish",
+          "Peas Snow"
+        ]
+      }
+    ],
+    "nutrients": [
+      {
+        "name": "Vitamin C",
+        "amount": "~varies"
+      },
+      {
+        "name": "Potassium",
+        "amount": "~varies"
+      },
+      {
+        "name": "Fiber",
+        "amount": "~varies"
+      }
+    ],
+    "macros": {
+      "calories": "~475",
+      "protein_g": "~17",
+      "carbs_g": "~110",
+      "fat_g": "~1",
+      "fiber_g": "~20",
+      "sugar_g": "~53",
+      "sodium_mg": "~100"
+    }
+  },
+  "health_analysis": {
+    "health_score": 100,
+    "warnings": [],
+    "suggestions": []
+  },
+  "store_name": "Unknown",
+  "date": "2025-10-19",
+  "time": "00:12:00",
+  "metadata": {
+    "analysis_id": "2253bd2d",
+    "timestamp": "2025-10-19T00:12:00.679170",
+    "version": "1.0"
+  }
+}

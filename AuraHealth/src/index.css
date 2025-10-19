@@ -1,0 +1,174 @@
+@import "tailwindcss";
+
+/* Aura Health Vibrant Theme */
+:root {
+  --radius: 0.625rem;
+  --background: #f1f9ff; /* Very light blue background */
+  --foreground: #095d7e; /* Dark blue text */
+  --card: #ffffff; /* White cards */
+  --card-foreground: #095d7e;
+  --popover: #ffffff;
+  --popover-foreground: #095d7e;
+  --primary: #14967f; /* Teal primary */
+  --primary-foreground: #ffffff;
+  --secondary: #ccecee; /* Light blue secondary */
+  --secondary-foreground: #095d7e;
+  --muted: #e2fcd6; /* Light green muted */
+  --muted-foreground: #14967f;
+  --accent: #095d7e; /* Dark blue accent */
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: #ccecee;
+  --input: #ffffff;
+  --ring: #14967f; /* Teal ring */
+  --chart-1: #14967f;
+  --chart-2: #095d7e;
+  --chart-3: #ccecee;
+  --chart-4: #e2fcd6;
+  --chart-5: #f1f9ff;
+  --chart-6: #8b5cf6; /* Purple chart */
+  --sidebar: #f1f9ff;
+  --sidebar-foreground: #095d7e;
+  --sidebar-primary: #14967f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #095d7e; /* Dark blue sidebar accent */
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #ccecee;
+  --sidebar-ring: #14967f;
+  
+  /* Aura Health Theme Colors */
+  --aura-light-green: #e2fcd6;
+  --aura-teal: #14967f;
+  --aura-dark-blue: #095d7e;
+  --aura-light-blue: #ccecee;
+  --aura-pale-blue: #f1f9ff;
+}
+
+@layer base {
+  * {
+    border-color: rgba(30, 41, 59, 0.2);
+    outline-color: rgba(59, 130, 246, 0.5);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    background: linear-gradient(135deg, #f1f9ff 0%, #ccecee 30%, #e2fcd6 60%, #f1f9ff 100%);
+    min-height: 100vh;
+  }
+}
+
+/* Vibrant Aura Health theme with beautiful effects */
+.galaxy-bg {
+  background: radial-gradient(ellipse at center, #f1f9ff 0%, #ccecee 20%, #e2fcd6 40%, #14967f 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+.galaxy-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(3px 3px at 20px 30px, #14967f, transparent),
+    radial-gradient(2px 2px at 40px 70px, #095d7e, transparent),
+    radial-gradient(1px 1px at 90px 40px, #ccecee, transparent),
+    radial-gradient(2px 2px at 130px 80px, #e2fcd6, transparent),
+    radial-gradient(3px 3px at 160px 30px, #14967f, transparent),
+    radial-gradient(1px 1px at 50px 50px, #095d7e, transparent),
+    radial-gradient(2px 2px at 120px 20px, #ccecee, transparent),
+    radial-gradient(1px 1px at 180px 60px, #e2fcd6, transparent);
+  background-repeat: repeat;
+  background-size: 200px 100px;
+  animation: sparkle 20s linear infinite;
+  opacity: 0.3;
+}
+
+.galaxy-bg::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse 400px 200px at 20% 20%, rgba(226, 252, 214, 0.1), transparent),
+    radial-gradient(ellipse 300px 150px at 80% 80%, rgba(20, 150, 127, 0.1), transparent),
+    radial-gradient(ellipse 500px 250px at 50% 50%, rgba(204, 236, 238, 0.1), transparent);
+  animation: float 15s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  from { transform: translateY(0px); }
+  to { transform: translateY(-100px); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(5px) rotate(-1deg); }
+}
+
+.glow-effect {
+  box-shadow: 0 0 20px rgba(20, 150, 127, 0.4), 0 0 40px rgba(9, 93, 126, 0.2);
+}
+
+.text-glow {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 0 20px rgba(20, 150, 127, 0.4), 0 0 30px rgba(9, 93, 126, 0.3);
+}
+
+/* Carousel animations */
+.carousel-slide {
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-slide.active {
+  transform: scale(1.05);
+}
+
+/* Vibrant button effects */
+.vibrant-button {
+  background: linear-gradient(135deg, #14967f 0%, #095d7e 100%);
+  box-shadow: 0 4px 15px rgba(20, 150, 127, 0.3);
+  transition: all 0.3s ease;
+}
+
+.vibrant-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(20, 150, 127, 0.4);
+}
+
+/* Card hover effects */
+.vibrant-card {
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+}
+
+.vibrant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(20, 150, 127, 0.2);
+}
+
+/* Better text contrast for theme blending */
+.text-theme-primary {
+  color: #095d7e;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.text-theme-secondary {
+  color: #14967f;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.text-theme-accent {
+  color: #e2fcd6;
+  text-shadow: 0 1px 3px rgba(9, 93, 126, 0.5);
+}
+
+.text-theme-light {
+  color: #ccecee;
+  text-shadow: 0 1px 2px rgba(9, 93, 126, 0.4);
+}

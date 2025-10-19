@@ -1,0 +1,369 @@
+{
+  "receipt_data": {
+    "store_name": "Unknown",
+    "raw_text": "DATE 06/01/2016 WED\n********************************\nZUCHINNI GREEN $4.66\n0.778kg NET @ $5.99/kg\nBANANA CAVENDISH $1.32\n0.442kg NET @ $2.99/kg\nSPECIAL $0.99\nSPECIAL $1.50\nPOTATOES BRUSHED $3.97\n1.328kg NET@ $2.99/kg\nBROCCOLI $4.84\n0.808kg NET@ $5.99/kg\nBRUSSEL SPROUTS $5.15\n0.322kg NET $15.99/kg\nSPECIAL $0.99\nGRAPES GREEN $7.03\n1.174kg NET $5.99/kg\nPEAS SNOW $3.27\n0.218kg NET@ $14.99/kg\nTOMATOES GRAPE $2.99\nLETTUCE ICEBERG $2.49\nSUBTOTAL $39.20\nLOYALTY -15.00\nSUBTOTAL $24.20\nSUBTOTAL $24.20\nSUBTOTAL $24.20\nTOTAL. $24.20\nCASH $50.00\nCHANGE $25.80",
+    "items": [
+      {
+        "name": "ZUCHINNI GREEN",
+        "price": 4.66,
+        "quantity": 0.778,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 3,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 2,
+          "sodium": 8,
+          "calories": 20
+        }
+      },
+      {
+        "name": "BANANA CAVENDISH",
+        "price": 1.32,
+        "quantity": 0.442,
+        "category": "fruits",
+        "nutrition": {
+          "carbohydrates": 23,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 3,
+          "sugar": 12,
+          "sodium": 1,
+          "calories": 105
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 0.99,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 1.5,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "POTATOES BRUSHED",
+        "price": 3.97,
+        "quantity": 1.328,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 17,
+          "protein": 2,
+          "fats": 0,
+          "fiber": 2,
+          "sugar": 1,
+          "sodium": 6,
+          "calories": 77
+        }
+      },
+      {
+        "name": "BROCCOLI",
+        "price": 4.84,
+        "quantity": 0.808,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 6,
+          "protein": 3,
+          "fats": 0,
+          "fiber": 3,
+          "sugar": 2,
+          "sodium": 30,
+          "calories": 34
+        }
+      },
+      {
+        "name": "BRUSSEL SPROUTS",
+        "price": 5.15,
+        "quantity": 0.322,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 9,
+          "protein": 3,
+          "fats": 0,
+          "fiber": 4,
+          "sugar": 2,
+          "sodium": 25,
+          "calories": 43
+        }
+      },
+      {
+        "name": "SPECIAL",
+        "price": 0.99,
+        "quantity": 1,
+        "category": "general",
+        "nutrition": {
+          "carbohydrates": 0,
+          "protein": 0,
+          "fats": 0,
+          "fiber": 0,
+          "sugar": 0,
+          "sodium": 0,
+          "calories": 0
+        }
+      },
+      {
+        "name": "GRAPES GREEN",
+        "price": 7.03,
+        "quantity": 1.174,
+        "category": "fruits",
+        "nutrition": {
+          "carbohydrates": 18,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 15,
+          "sodium": 2,
+          "calories": 69
+        }
+      },
+      {
+        "name": "PEAS SNOW",
+        "price": 3.27,
+        "quantity": 0.218,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 5,
+          "protein": 2,
+          "fats": 0,
+          "fiber": 2,
+          "sugar": 2,
+          "sodium": 5,
+          "calories": 27
+        }
+      },
+      {
+        "name": "TOMATOES GRAPE",
+        "price": 2.99,
+        "quantity": 1,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 4,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 2,
+          "sodium": 5,
+          "calories": 18
+        }
+      },
+      {
+        "name": "LETTUCE ICEBERG",
+        "price": 2.49,
+        "quantity": 1,
+        "category": "vegetables",
+        "nutrition": {
+          "carbohydrates": 3,
+          "protein": 1,
+          "fats": 0,
+          "fiber": 1,
+          "sugar": 2,
+          "sodium": 5,
+          "calories": 14
+        }
+      }
+    ],
+    "subtotal": 24.2,
+    "tax": 0.0,
+    "total": 24.2,
+    "red_flags": [],
+    "budget_swaps": [],
+    "healthy_swaps": [
+      {
+        "item": "POTATOES BRUSHED",
+        "swap": "SWEET POTATOES",
+        "reason": "Sweet potatoes have a lower glycemic index and are higher in Vitamin A."
+      },
+      {
+        "item": "LETTUCE ICEBERG",
+        "swap": "ROMAINE LETTUCE",
+        "reason": "Romaine lettuce has more nutrients like Vitamin A and folate compared to iceberg."
+      }
+    ],
+    "meal_plan": [
+      {
+        "name": "Simple Salad",
+        "uses": [
+          "LETTUCE ICEBERG",
+          "TOMATOES GRAPE",
+          "CUCUMBER",
+          "BROCCOLI"
+        ],
+        "prep_time": "5 minutes",
+        "difficulty": "easy",
+        "nutrition_benefits": "Provides a good source of vitamins, minerals, and fiber. Low in calories."
+      },
+      {
+        "name": "Roasted Vegetables",
+        "uses": [
+          "BRUSSEL SPROUTS",
+          "ZUCHINNI GREEN",
+          "POTATOES BRUSHED",
+          "BROCCOLI"
+        ],
+        "prep_time": "10 minutes",
+        "difficulty": "easy",
+        "nutrition_benefits": "Rich in fiber, vitamins, and antioxidants. Supports digestive health."
+      },
+      {
+        "name": "Fruit Snack",
+        "uses": [
+          "GRAPES GREEN",
+          "BANANA CAVENDISH"
+        ],
+        "prep_time": "2 minutes",
+        "difficulty": "easy",
+        "nutrition_benefits": "Provides quick energy, vitamins, and antioxidants."
+      }
+    ],
+    "alternative_meal_plan": [
+      {
+        "name": "Steamed Vegetables",
+        "uses": [
+          "BROCCOLI",
+          "PEAS SNOW",
+          "BRUSSEL SPROUTS"
+        ],
+        "prep_time": "10 minutes",
+        "difficulty": "easy",
+        "nutrition_benefits": "Maintains nutrient content better than boiling; provides vitamins and minerals."
+      },
+      {
+        "name": "Potato and Broccoli Soup",
+        "uses": [
+          "POTATOES BRUSHED",
+          "BROCCOLI"
+        ],
+        "prep_time": "20 minutes",
+        "difficulty": "medium",
+        "nutrition_benefits": "Creamy and filling, rich in fiber and vitamins. Can be made healthier by using less salt."
+      },
+      {
+        "name": "Frozen Banana Bites",
+        "uses": [
+          "BANANA CAVENDISH",
+          "GRAPES GREEN"
+        ],
+        "prep_time": "5 minutes",
+        "difficulty": "easy",
+        "nutrition_benefits": "Great source of post-workout potassium. Naturally sweet, no added sugar."
+      }
+    ],
+    "ingredient_analysis": [
+      {
+        "ingredient": "ZUCHINNI GREEN",
+        "health_benefits": "Low in calories, good source of vitamin C, potassium, and fiber.",
+        "nutritional_value": "Rich in antioxidants and anti-inflammatory compounds.",
+        "cooking_tips": "Can be grilled, roasted, sautéed, or added to soups and stews. Avoid overcooking to maintain its texture."
+      },
+      {
+        "ingredient": "BANANA CAVENDISH",
+        "health_benefits": "Good source of potassium, which is essential for heart health and blood pressure regulation.",
+        "nutritional_value": "Provides natural sugars for energy, as well as vitamin B6 and vitamin C.",
+        "cooking_tips": "Enjoy as a snack, add to smoothies, or bake into breads and muffins."
+      },
+      {
+        "ingredient": "POTATOES BRUSHED",
+        "health_benefits": "Good source of potassium and vitamin C. Contains resistant starch that can improve gut health.",
+        "nutritional_value": "Provides carbohydrates for energy, as well as some fiber and essential minerals.",
+        "cooking_tips": "Can be boiled, baked, roasted, or mashed. Choose low-fat cooking methods to minimize added calories."
+      },
+      {
+        "ingredient": "BROCCOLI",
+        "health_benefits": "Excellent source of vitamin C, vitamin K, and folate. Contains antioxidants and anti-cancer compounds.",
+        "nutritional_value": "Rich in fiber, vitamins, and minerals. Supports immune function and bone health.",
+        "cooking_tips": "Can be steamed, roasted, stir-fried, or eaten raw. Avoid overcooking to preserve its nutrients and texture."
+      },
+      {
+        "ingredient": "BRUSSEL SPROUTS",
+        "health_benefits": "High in fiber, vitamin K, and vitamin C. Contains antioxidants that can protect against cell damage.",
+        "nutritional_value": "Provides a good source of vitamins, minerals, and fiber. Supports digestive health and immune function.",
+        "cooking_tips": "Roast, steam, or sauté until tender. Avoid overcooking to prevent bitterness."
+      },
+      {
+        "ingredient": "GRAPES GREEN",
+        "health_benefits": "Good source of antioxidants, including resveratrol, which may have heart-health benefits.",
+        "nutritional_value": "Provides natural sugars for energy, as well as vitamin K and some minerals.",
+        "cooking_tips": "Enjoy as a snack, add to salads, or freeze for a refreshing treat."
+      },
+      {
+        "ingredient": "PEAS SNOW",
+        "health_benefits": "Good source of vitamin C, fiber, and vitamin A. Low in calories and fat.",
+        "nutritional_value": "Provides essential nutrients, including vitamins, minerals, and fiber. Supports digestive health and immune function.",
+        "cooking_tips": "Can be stir-fried, steamed, or eaten raw. Add to salads, soups, or stir-fries."
+      },
+      {
+        "ingredient": "TOMATOES GRAPE",
+        "health_benefits": "Good source of lycopene, an antioxidant that may reduce the risk of heart disease and cancer.",
+        "nutritional_value": "Provides vitamins A and C, as well as potassium and fiber.",
+        "cooking_tips": "Enjoy as a snack, add to salads, or use in sauces and salsas."
+      },
+      {
+        "ingredient": "LETTUCE ICEBERG",
+        "health_benefits": "Hydrating due to high water content, provides some fiber and vitamin K.",
+        "nutritional_value": "Low in calories and fat, provides some essential vitamins and minerals.",
+        "cooking_tips": "Use as a base for salads or as a wrap for sandwiches and burgers. Store in the refrigerator to maintain freshness."
+      }
+    ],
+    "nutrients": [],
+    "macros": {
+      "calories": "~400",
+      "protein_g": "~15",
+      "carbs_g": "~80",
+      "fat_g": "~5",
+      "fiber_g": "~15",
+      "sugar_g": "~40",
+      "sodium_mg": "~100"
+    },
+    "overall_health_score": 75,
+    "suggestions": [
+      {
+        "category": "Vegetables",
+        "title": "Add More Leafy Greens",
+        "description": "Consider swapping iceberg lettuce for romaine or spinach for increased nutrient density.",
+        "priority": "medium"
+      },
+      {
+        "category": "Fruits",
+        "title": "Mix Up Your Fruits",
+        "description": "While bananas and grapes are good, try adding berries or oranges for a wider range of vitamins and antioxidants.",
+        "priority": "low"
+      }
+    ],
+    "warnings": []
+  },
+  "health_analysis": {
+    "health_score": 100,
+    "warnings": [],
+    "suggestions": []
+  },
+  "store_name": "Unknown",
+  "date": "2025-10-19",
+  "time": "00:32:06",
+  "metadata": {
+    "analysis_id": "8abf424e",
+    "timestamp": "2025-10-19T00:32:06.626076",
+    "version": "1.0"
+  }
+}
