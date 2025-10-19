@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 import requests
 from email_templates import get_welcome_email_template, get_monthly_report_template
 from email_sender import python_email_sender
+from email_template_loader import template_loader
 
 # Load environment variables
 load_dotenv()
@@ -453,7 +454,7 @@ async def send_email(request: EmailRequest):
         
         # Use the proper email template for monthly reports
         if "Health Snapshot" in request.subject:
-            html_content = get_monthly_report_template(
+            html_content = template_loader.get_monthly_report_email(
                 user_name=request.userName,
                 month=request.month,
                 year=request.year,
@@ -565,11 +566,14 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         print(f"📧 Newsletter subscription: {request.email} ({request.userName})")
         
-        if RESEND_AVAILABLE and RESEND_API_KEY:
-            try:
-                # Use the React Email template from frontend
-                welcome_html = get_welcome_email_template(request.userName)
-                
+        # Generate React Email template using pre-generated templates
+        try:
+            # Use the template loader to get the React Email template
+            welcome_html = template_loader.get_welcome_email(request.userName)
+            print(f"📧 Generated React Email template for: {request.email}")
+            
+            # Send the email using Resend
+            if RESEND_AVAILABLE and RESEND_API_KEY:
                 welcome_email = {
                     "from": "Aura Health <hello@tryaura.health>",
                     "to": [request.email],
@@ -589,26 +593,33 @@ async def subscribe_newsletter(request: NewsletterSubscription):
                 )
                 
                 if response.status_code == 200:
-                    print(f"📧 Welcome email sent to: {request.email}")
+                    print(f"📧 Welcome email sent via Resend to: {request.email}")
                 else:
                     print(f"⚠️ Resend failed, trying Python SMTP: {response.text}")
-                    # Try fallback email sender
                     python_email_sender.send_email(
                         to_email=request.email,
                         subject="Welcome to Aura Health! 🌟",
                         html_content=welcome_html,
                         sender_name="Aura Health"
                     )
-                    
-            except Exception as e:
-                print(f"⚠️ Resend error, trying Python SMTP: {e}")
-                # Try fallback email sender
+            else:
                 python_email_sender.send_email(
                     to_email=request.email,
                     subject="Welcome to Aura Health! 🌟",
                     html_content=welcome_html,
                     sender_name="Aura Health"
                 )
+                    
+        except Exception as e:
+            print(f"⚠️ Email sending error, using fallback: {e}")
+            # Fallback to Python template
+            welcome_html = get_welcome_email_template(request.userName)
+            python_email_sender.send_email(
+                to_email=request.email,
+                subject="Welcome to Aura Health! 🌟",
+                html_content=welcome_html,
+                sender_name="Aura Health"
+            )
         
         return JSONResponse(
             status_code=200,

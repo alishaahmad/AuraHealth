@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && npm run email:generate",
     "lint": "eslint .",
     "preview": "vite preview",
     "email:preview": "tsx scripts/email-preview.ts",
     "email:send": "SEND=true tsx scripts/email-preview.ts",
-    "email:test": "tsx scripts/test-email.ts"
+    "email:test": "tsx scripts/test-email.ts",
+    "email:generate": "tsx scripts/generate-email-templates.js"
   },
   "dependencies": {
     "@icons-pack/react-simple-icons": "^13.8.0",
