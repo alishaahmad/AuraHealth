@@ -568,17 +568,42 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         # Generate React Email template using pre-generated templates
         try:
-            # Use the template loader to get the React Email template
-            welcome_html = template_loader.get_welcome_email(request.userName)
-            print(f"📧 Generated React Email template for: {request.email}")
+            # Use the template loader to get the monthly report template instead of welcome
+            from datetime import datetime
+            current_month = datetime.now().strftime('%B')
+            current_year = datetime.now().year
+            
+            monthly_html = template_loader.get_monthly_report_email(
+                user_name=request.userName,
+                month=current_month,
+                year=current_year,
+                aura_score=78,  # Sample score
+                score_description="You're on the right track—keep making small changes for even better results!",
+                total_receipts=12,
+                health_insights=[
+                    "Grapefruit Juice: May interfere with your statin medication (atorvastatin), potentially increasing side effects. Consider alternative citrus options.",
+                    "High Vitamin K (Kale Chips): Can affect blood thinner effectiveness. Consistency is key—maintain steady vitamin K intake with your warfarin regimen."
+                ],
+                meal_suggestions=[
+                    "Canned Soup → Low-Sodium Bone Broth: Better for blood pressure management. 75% less sodium, more protein, supports your heart health goals.",
+                    "Regular Pasta → Chickpea Pasta: Naturally gluten-free and higher in protein. Helps stabilize blood sugar while accommodating your sensitivity.",
+                    "Grapefruit → Orange Juice: Safe with your statin medication. No drug interaction risk, still provides vitamin C and morning brightness."
+                ],
+                warnings=[
+                    "High Sodium Content (Canned Soup): Your hypertension profile suggests limiting sodium to 1,500mg daily. This item contains 42% of that in one serving.",
+                    "Added Sugars (Flavored Yogurt): For prediabetes management, watch for hidden sugars. This contains 18g added sugar per serving—consider plain yogurt with fresh fruit.",
+                    "Gluten (Wheat Pasta): You've noted gluten sensitivity. We detected gluten-containing items on 3 receipts this month."
+                ]
+            )
+            print(f"📧 Generated Monthly Report template for: {request.email}")
             
             # Send the email using Resend
             if RESEND_AVAILABLE and RESEND_API_KEY:
-                welcome_email = {
+                monthly_email = {
                     "from": "Aura Health <hello@tryaura.health>",
                     "to": [request.email],
-                    "subject": "Welcome to Aura Health! 🌟",
-                    "html": welcome_html
+                    "subject": f"Your {current_month} {current_year} Snapshot from Aura Health",
+                    "html": monthly_html
                 }
                 
                 headers = {
@@ -589,35 +614,60 @@ async def subscribe_newsletter(request: NewsletterSubscription):
                 response = requests.post(
                     "https://api.resend.com/emails",
                     headers=headers,
-                    json=welcome_email
+                    json=monthly_email
                 )
                 
                 if response.status_code == 200:
-                    print(f"📧 Welcome email sent via Resend to: {request.email}")
+                    print(f"📧 Monthly report email sent via Resend to: {request.email}")
                 else:
                     print(f"⚠️ Resend failed, trying Python SMTP: {response.text}")
                     python_email_sender.send_email(
                         to_email=request.email,
-                        subject="Welcome to Aura Health! 🌟",
-                        html_content=welcome_html,
+                        subject=f"Your {current_month} {current_year} Snapshot from Aura Health",
+                        html_content=monthly_html,
                         sender_name="Aura Health"
                     )
             else:
                 python_email_sender.send_email(
                     to_email=request.email,
-                    subject="Welcome to Aura Health! 🌟",
-                    html_content=welcome_html,
+                    subject=f"Your {current_month} {current_year} Snapshot from Aura Health",
+                    html_content=monthly_html,
                     sender_name="Aura Health"
                 )
                     
         except Exception as e:
             print(f"⚠️ Email sending error, using fallback: {e}")
             # Fallback to Python template
-            welcome_html = get_welcome_email_template(request.userName)
+            from datetime import datetime
+            current_month = datetime.now().strftime('%B')
+            current_year = datetime.now().year
+            
+            monthly_html = get_monthly_report_template(
+                user_name=request.userName,
+                month=current_month,
+                year=current_year,
+                aura_score=78,
+                score_description="You're on the right track—keep making small changes for even better results!",
+                total_receipts=12,
+                health_insights=[
+                    "Grapefruit Juice: May interfere with your statin medication (atorvastatin), potentially increasing side effects. Consider alternative citrus options.",
+                    "High Vitamin K (Kale Chips): Can affect blood thinner effectiveness. Consistency is key—maintain steady vitamin K intake with your warfarin regimen."
+                ],
+                meal_suggestions=[
+                    "Canned Soup → Low-Sodium Bone Broth: Better for blood pressure management. 75% less sodium, more protein, supports your heart health goals.",
+                    "Regular Pasta → Chickpea Pasta: Naturally gluten-free and higher in protein. Helps stabilize blood sugar while accommodating your sensitivity.",
+                    "Grapefruit → Orange Juice: Safe with your statin medication. No drug interaction risk, still provides vitamin C and morning brightness."
+                ],
+                warnings=[
+                    "High Sodium Content (Canned Soup): Your hypertension profile suggests limiting sodium to 1,500mg daily. This item contains 42% of that in one serving.",
+                    "Added Sugars (Flavored Yogurt): For prediabetes management, watch for hidden sugars. This contains 18g added sugar per serving—consider plain yogurt with fresh fruit.",
+                    "Gluten (Wheat Pasta): You've noted gluten sensitivity. We detected gluten-containing items on 3 receipts this month."
+                ]
+            )
             python_email_sender.send_email(
                 to_email=request.email,
-                subject="Welcome to Aura Health! 🌟",
-                html_content=welcome_html,
+                subject=f"Your {current_month} {current_year} Snapshot from Aura Health",
+                html_content=monthly_html,
                 sender_name="Aura Health"
             )
         

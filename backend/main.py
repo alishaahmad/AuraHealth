@@ -12,6 +12,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import uvicorn
+from email_template_loader import template_loader
 
 # Optional imports with fallbacks
 try:
@@ -1467,38 +1468,42 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         print(f"📧 Newsletter subscription: {request.email} ({request.userName})")
         
-        # Send welcome email if Resend is available
+        # Send monthly report email if Resend is available
         if RESEND_AVAILABLE and RESEND_API_KEY:
             try:
-                welcome_html = f"""
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #095d7e; font-size: 28px;">Welcome to Aura Health! 🌟</h1>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #e2fcd6 0%, #ccecee 100%); padding: 30px; border-radius: 16px; margin-bottom: 20px;">
-                        <h2 style="color: #095d7e; margin-bottom: 16px;">Hi {request.userName}!</h2>
-                        <p style="color: #14967f; font-size: 16px; line-height: 1.6;">
-                            Thank you for subscribing to our monthly health insights newsletter! 
-                            You'll receive personalized health recommendations, dietary insights, 
-                            and wellness tips delivered to your inbox every month.
-                        </p>
-                    </div>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://your-domain.com/dashboard" style="background: linear-gradient(135deg, #14967f 0%, #095d7e 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">
-                            Start Your Health Journey
-                        </a>
-                    </div>
-                    <div style="text-align: center; color: #14967f; font-size: 14px; margin-top: 30px;">
-                        <p>© 2024 Aura Health. Making every receipt a step toward better health.</p>
-                    </div>
-                </div>
-                """
+                from datetime import datetime
+                current_month = datetime.now().strftime('%B')
+                current_year = datetime.now().year
                 
-                welcome_email = {
+                # Use the template loader to get the monthly report template
+                monthly_html = template_loader.get_monthly_report_email(
+                    user_name=request.userName,
+                    month=current_month,
+                    year=current_year,
+                    aura_score=78,  # Sample score
+                    score_description="You're on the right track—keep making small changes for even better results!",
+                    total_receipts=12,
+                    health_insights=[
+                        "Grapefruit Juice: May interfere with your statin medication (atorvastatin), potentially increasing side effects. Consider alternative citrus options.",
+                        "High Vitamin K (Kale Chips): Can affect blood thinner effectiveness. Consistency is key—maintain steady vitamin K intake with your warfarin regimen."
+                    ],
+                    meal_suggestions=[
+                        "Canned Soup → Low-Sodium Bone Broth: Better for blood pressure management. 75% less sodium, more protein, supports your heart health goals.",
+                        "Regular Pasta → Chickpea Pasta: Naturally gluten-free and higher in protein. Helps stabilize blood sugar while accommodating your sensitivity.",
+                        "Grapefruit → Orange Juice: Safe with your statin medication. No drug interaction risk, still provides vitamin C and morning brightness."
+                    ],
+                    warnings=[
+                        "High Sodium Content (Canned Soup): Your hypertension profile suggests limiting sodium to 1,500mg daily. This item contains 42% of that in one serving.",
+                        "Added Sugars (Flavored Yogurt): For prediabetes management, watch for hidden sugars. This contains 18g added sugar per serving—consider plain yogurt with fresh fruit.",
+                        "Gluten (Wheat Pasta): You've noted gluten sensitivity. We detected gluten-containing items on 3 receipts this month."
+                    ]
+                )
+                
+                monthly_email = {
                     "from": "Aura Health <hello@tryaura.health>",
                     "to": [request.email],
-                    "subject": "Welcome to Aura Health! 🌟",
-                    "html": welcome_html
+                    "subject": f"Your {current_month} {current_year} Snapshot from Aura Health",
+                    "html": monthly_html
                 }
                 
                 headers = {
@@ -1509,16 +1514,16 @@ async def subscribe_newsletter(request: NewsletterSubscription):
                 response = requests.post(
                     "https://api.resend.com/emails",
                     headers=headers,
-                    json=welcome_email
+                    json=monthly_email
                 )
                 
                 if response.status_code == 200:
-                    print(f"📧 Welcome email sent to: {request.email}")
+                    print(f"📧 Monthly report email sent to: {request.email}")
                 else:
-                    print(f"⚠️ Failed to send welcome email: {response.text}")
+                    print(f"⚠️ Failed to send monthly report email: {response.text}")
                     
             except Exception as e:
-                print(f"⚠️ Welcome email error: {e}")
+                print(f"⚠️ Monthly report email error: {e}")
         
         return JSONResponse(
             status_code=200,
