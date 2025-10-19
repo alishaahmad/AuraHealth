@@ -174,7 +174,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/chat', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -862,7 +862,7 @@ export function Dashboard({ onLogout }: DashboardProps) {
   // Load analysis history
   const loadAnalysisHistory = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/history');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/history`);
       if (response.ok) {
         const data = await response.json();
         setAnalysisHistory(data.analyses || []);

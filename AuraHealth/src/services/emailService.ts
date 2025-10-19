@@ -15,7 +15,7 @@ export interface EmailData {
 }
 
 export class EmailService {
-  private static baseUrl = 'http://localhost:8000';
+  private static baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
   static async sendMonthlyReport(emailData: EmailData): Promise<{ success: boolean; message: string }> {
     try {

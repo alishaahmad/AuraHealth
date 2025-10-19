@@ -1,0 +1,607 @@
+from fastapi import FastAPI, HTTPException, File, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+import os
+import json
+import uuid
+import base64
+from datetime import datetime
+from typing import List, Optional, Dict, Any
+import google.generativeai as genai
+import openai
+from dotenv import load_dotenv
+import requests
+
+# Load environment variables
+load_dotenv()
+
+# Initialize FastAPI app
+app = FastAPI(title="Aura Health API", version="1.0.0")
+
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:5174", 
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "https://aura-health.vercel.app",
+        "https://*.vercel.app"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# API Key setup
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+# Initialize AI clients
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+    GEMINI_AVAILABLE = True
+else:
+    GEMINI_AVAILABLE = False
+
+if OPENAI_API_KEY:
+    openai.api_key = OPENAI_API_KEY
+    OPENAI_AVAILABLE = True
+else:
+    OPENAI_AVAILABLE = False
+
+RESEND_AVAILABLE = bool(RESEND_API_KEY)
+
+# Data directory
+DATA_DIR = "data"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# Pydantic models
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+    model: str = "openrouter"
+    receipt_context: Optional[Dict[str, Any]] = None
+    health_profile: Optional[Dict[str, Any]] = None
+
+class EmailRequest(BaseModel):
+    to: str
+    subject: str
+    html: str
+    userName: str
+    month: str
+    year: int
+    auraScore: int
+    scoreDescription: str
+    totalReceipts: Optional[int] = 0
+    healthInsights: Optional[List[str]] = []
+    mealSuggestions: Optional[List[str]] = []
+    warnings: Optional[List[str]] = []
+
+class NewsletterSubscription(BaseModel):
+    email: str
+    userName: str
+    subscribedAt: str
+
+# WebSocket connection manager
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
+
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+manager = ConnectionManager()
+
+# Health check endpoint
+@app.get("/api/health")
+async def health_check():
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
+
+# OCR and analysis endpoint
+@app.post("/api/ocr/process")
+async def process_receipt(file: UploadFile = File(...)):
+    try:
+        if not GEMINI_AVAILABLE:
+            raise HTTPException(status_code=500, detail="Gemini API not available")
+        
+        # Read file content
+        contents = await file.read()
+        
+        # Convert to base64
+        base64_image = base64.b64encode(contents).decode('utf-8')
+        
+        # Initialize Gemini model
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # Enhanced prompt for rich data extraction
+        prompt = """
+        You are a nutrition and ingredients analyst. Analyze this receipt image and return ONLY JSON (no prose). 
+        
+        Schema: {
+          "store_name": "string",
+          "raw_text": "string", 
+          "items": [
+            {
+              "name": "string",
+              "price": "number",
+              "quantity": "number", 
+              "category": "string",
+              "nutrition": {
+                "carbohydrates": "number",
+                "protein": "number",
+                "fats": "number",
+                "fiber": "number",
+                "sugar": "number",
+                "sodium": "number",
+                "calories": "number"
+              }
+            }
+          ],
+          "subtotal": "number",
+          "tax": "number", 
+          "total": "number",
+          "red_flags": [
+            {
+              "title": "string",
+              "detail": "string"
+            }
+          ],
+          "budget_swaps": [
+            {
+              "item": "string",
+              "swap": "string", 
+              "savings": "string"
+            }
+          ],
+          "healthy_swaps": [
+            {
+              "item": "string",
+              "swap": "string",
+              "reason": "string"
+            }
+          ],
+          "meal_plan": [
+            {
+              "name": "string",
+              "uses": ["string"],
+              "prep_time": "string",
+              "difficulty": "string",
+              "nutrition_benefits": "string"
+            }
+          ],
+          "alternative_meal_plan": [
+            {
+              "name": "string", 
+              "uses": ["string"],
+              "prep_time": "string",
+              "difficulty": "string",
+              "nutrition_benefits": "string"
+            }
+          ],
+          "ingredient_analysis": [
+            {
+              "ingredient": "string",
+              "health_benefits": "string",
+              "nutritional_value": "string", 
+              "cooking_tips": "string"
+            }
+          ],
+          "nutrients": [
+            {
+              "name": "string",
+              "amount": "string",
+              "daily_value_percent": "string"
+            }
+          ],
+          "macros": {
+            "calories": "string|number",
+            "protein_g": "string|number", 
+            "carbs_g": "string|number",
+            "fat_g": "string|number",
+            "fiber_g": "string|number",
+            "sugar_g": "string|number",
+            "sodium_mg": "string|number"
+          },
+          "overall_health_score": "number",
+          "suggestions": [
+            {
+              "category": "string",
+              "title": "string", 
+              "description": "string",
+              "priority": "low|medium|high"
+            }
+          ],
+          "warnings": [
+            {
+              "type": "string",
+              "message": "string",
+              "severity": "low|medium|high"
+            }
+          ]
+        }
+        
+        Rules:
+        - Ground all findings in the provided receipt image
+        - If exact numbers are unavailable, provide reasonable estimates and mark them clearly (e.g., "~12 g")
+        - Consider potential drug interactions, allergens, and dietary conflicts
+        - Keep items concise and useful
+        - Generate realistic meal plans based on the actual ingredients
+        - Provide practical cooking tips and health benefits
+        - Calculate overall health score based on nutritional balance and variety
+        """
+        
+        # Generate content
+        response = model.generate_content([
+            prompt,
+            {
+                "mime_type": file.content_type,
+                "data": base64_image
+            }
+        ])
+        
+        # Parse JSON response
+        try:
+            analysis_data = json.loads(response.text)
+        except json.JSONDecodeError:
+            # Fallback if JSON parsing fails
+            analysis_data = {
+                "store_name": "Unknown",
+                "raw_text": "Failed to parse receipt",
+                "items": [],
+                "subtotal": 0,
+                "tax": 0,
+                "total": 0,
+                "red_flags": [],
+                "budget_swaps": [],
+                "healthy_swaps": [],
+                "meal_plan": [],
+                "alternative_meal_plan": [],
+                "ingredient_analysis": [],
+                "nutrients": [],
+                "macros": {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0, "sugar_g": 0, "sodium_mg": 0},
+                "overall_health_score": 0,
+                "suggestions": [],
+                "warnings": []
+            }
+        
+        # Save analysis to file
+        analysis_id = str(uuid.uuid4())[:8]
+        analysis_file = os.path.join(DATA_DIR, f"analysis_{analysis_id}.json")
+        
+        with open(analysis_file, 'w') as f:
+            json.dump(analysis_data, f, indent=2)
+        
+        print(f"Analysis saved with ID: {analysis_id}")
+        
+        return {
+            "success": True,
+            "analysis_id": analysis_id,
+            "data": analysis_data
+        }
+        
+    except Exception as e:
+        print(f"Error processing receipt: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to process receipt: {str(e)}")
+
+# Chat endpoint
+@app.post("/api/chat")
+async def chat(request: ChatRequest):
+    try:
+        print(f"💬 Received chat request")
+        print(f"📊 Messages: {len(request.messages)}")
+        print(f"🧾 Receipt context: {bool(request.receipt_context)}")
+        print(f"🏥 Health profile: {request.health_profile}")
+        print(f"🤖 AI Model: {request.model}")
+        
+        # Prepare context
+        context_parts = []
+        
+        if request.receipt_context:
+            context_parts.append(f"Receipt Analysis Context:\n{json.dumps(request.receipt_context, indent=2)}")
+        
+        if request.health_profile:
+            context_parts.append(f"Health Profile:\n{json.dumps(request.health_profile, indent=2)}")
+        
+        context = "\n\n".join(context_parts) if context_parts else ""
+        
+        # Prepare messages
+        messages = []
+        if context:
+            messages.append({
+                "role": "system",
+                "content": f"You are Astrea, an AI health assistant. Use this context to provide personalized advice:\n\n{context}\n\nAlways respond in markdown format and be helpful, accurate, and encouraging."
+            })
+        
+        for msg in request.messages:
+            messages.append({
+                "role": msg.role,
+                "content": msg.content
+            })
+        
+        # Choose AI model
+        if request.model == "gemini" and GEMINI_AVAILABLE:
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            response = model.generate_content(messages[-1]["content"])
+            ai_response = response.text
+        elif request.model == "openrouter" and OPENAI_AVAILABLE:
+            response = openai.ChatCompletion.create(
+                model="anthropic/claude-3.5-sonnet",
+                messages=messages,
+                max_tokens=1000,
+                temperature=0.7
+            )
+            ai_response = response.choices[0].message.content
+        else:
+            raise HTTPException(status_code=500, detail="AI service not available")
+        
+        return {
+            "success": True,
+            "response": ai_response,
+            "model": request.model
+        }
+        
+    except Exception as e:
+        print(f"❌ Chat error: {e}")
+        raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
+
+# WebSocket endpoint for Gemini Live
+@app.websocket("/ws/gemini-live")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            print(f"📨 Received WebSocket message: {data}")
+            
+            if data == "setup":
+                print("🔧 Setting up WebSocket connection")
+                await manager.send_personal_message("WebSocket connected successfully", websocket)
+            else:
+                # Handle other WebSocket messages here
+                await manager.send_personal_message(f"Echo: {data}", websocket)
+                
+    except WebSocketDisconnect:
+        print("🔌 WebSocket disconnected")
+        manager.disconnect(websocket)
+
+# Audio processing endpoint
+@app.post("/api/gemini-live-audio")
+async def process_audio(audio_data: str):
+    try:
+        if not GEMINI_AVAILABLE:
+            raise HTTPException(status_code=500, detail="Gemini API not available")
+        
+        # Decode base64 audio
+        audio_bytes = base64.b64decode(audio_data)
+        
+        if len(audio_bytes) < 100:
+            return {
+                "success": True,
+                "response": "I didn't hear anything. Please try speaking again.",
+                "audio_response": ""
+            }
+        
+        # Process with Gemini (simplified for Vercel)
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        
+        # For now, return a simple response
+        response_text = "I received your audio message. This is a simplified response for Vercel deployment."
+        
+        return {
+            "success": True,
+            "response": response_text,
+            "audio_response": ""
+        }
+        
+    except Exception as e:
+        print(f"❌ Audio processing error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to process audio: {str(e)}")
+
+# History endpoint
+@app.get("/api/history")
+async def get_history():
+    try:
+        history_files = []
+        if os.path.exists(DATA_DIR):
+            for filename in os.listdir(DATA_DIR):
+                if filename.startswith("analysis_") and filename.endswith(".json"):
+                    filepath = os.path.join(DATA_DIR, filename)
+                    with open(filepath, 'r') as f:
+                        data = json.load(f)
+                        history_files.append({
+                            "id": filename.replace("analysis_", "").replace(".json", ""),
+                            "timestamp": os.path.getmtime(filepath),
+                            "data": data
+                        })
+        
+        # Sort by timestamp (newest first)
+        history_files.sort(key=lambda x: x["timestamp"], reverse=True)
+        
+        return {"success": True, "history": history_files}
+        
+    except Exception as e:
+        print(f"❌ History error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get history: {str(e)}")
+
+# Email endpoints
+@app.post("/api/send-email")
+async def send_email(request: EmailRequest):
+    try:
+        if not RESEND_AVAILABLE or not RESEND_API_KEY:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Resend API not available or API key missing"}
+            )
+        
+        email_data = {
+            "from": "Aura Health <hello@tryaura.health>",
+            "to": [request.to],
+            "subject": request.subject,
+            "html": request.html
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers=headers,
+            json=email_data
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"📧 Email sent successfully to: {request.to}")
+            print(f"📧 Resend ID: {result.get('id')}")
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Email sent successfully!",
+                    "emailId": str(uuid.uuid4()),
+                    "resendId": result.get('id')
+                }
+            )
+        else:
+            print(f"❌ Resend API error: {response.status_code} - {response.text}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": f"Failed to send email: {response.text}"}
+            )
+        
+    except Exception as e:
+        print(f"❌ Email sending error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to send email: {str(e)}"}
+        )
+
+@app.post("/api/newsletter/subscribe")
+async def subscribe_newsletter(request: NewsletterSubscription):
+    try:
+        subscription_data = {
+            "id": str(uuid.uuid4()),
+            "email": request.email,
+            "userName": request.userName,
+            "subscribedAt": request.subscribedAt,
+            "status": "active"
+        }
+        
+        subscription_file = os.path.join(DATA_DIR, f"subscription_{subscription_data['id']}.json")
+        with open(subscription_file, 'w') as f:
+            json.dump(subscription_data, f, indent=2)
+        
+        print(f"📧 Newsletter subscription: {request.email} ({request.userName})")
+        
+        if RESEND_AVAILABLE and RESEND_API_KEY:
+            try:
+                welcome_html = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #095d7e; font-size: 28px;">Welcome to Aura Health! 🌟</h1>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #e2fcd6 0%, #ccecee 100%); padding: 30px; border-radius: 16px; margin-bottom: 20px;">
+                        <h2 style="color: #095d7e; margin-bottom: 16px;">Hi {request.userName}!</h2>
+                        <p style="color: #14967f; font-size: 16px; line-height: 1.6;">
+                            Thank you for subscribing to our monthly health insights newsletter! 
+                            You'll receive personalized health recommendations, dietary insights, 
+                            and wellness tips delivered to your inbox every month.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://aura-health.vercel.app/dashboard" style="background: linear-gradient(135deg, #14967f 0%, #095d7e 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">
+                            Start Your Health Journey
+                        </a>
+                    </div>
+                    <div style="text-align: center; color: #14967f; font-size: 14px; margin-top: 30px;">
+                        <p>© 2024 Aura Health. Making every receipt a step toward better health.</p>
+                    </div>
+                </div>
+                """
+                
+                welcome_email = {
+                    "from": "Aura Health <hello@tryaura.health>",
+                    "to": [request.email],
+                    "subject": "Welcome to Aura Health! 🌟",
+                    "html": welcome_html
+                }
+                
+                headers = {
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+                
+                response = requests.post(
+                    "https://api.resend.com/emails",
+                    headers=headers,
+                    json=welcome_email
+                )
+                
+                if response.status_code == 200:
+                    print(f"📧 Welcome email sent to: {request.email}")
+                else:
+                    print(f"⚠️ Failed to send welcome email: {response.text}")
+                    
+            except Exception as e:
+                print(f"⚠️ Welcome email error: {e}")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Successfully subscribed to newsletter!",
+                "subscriptionId": subscription_data['id']
+            }
+        )
+        
+    except Exception as e:
+        print(f"❌ Newsletter subscription error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to subscribe to newsletter: {str(e)}"}
+        )
+
+@app.get("/api/newsletter/subscribers")
+async def get_subscribers():
+    try:
+        subscribers = []
+        if os.path.exists(DATA_DIR):
+            for filename in os.listdir(DATA_DIR):
+                if filename.startswith("subscription_") and filename.endswith(".json"):
+                    filepath = os.path.join(DATA_DIR, filename)
+                    with open(filepath, 'r') as f:
+                        data = json.load(f)
+                        subscribers.append(data)
+        
+        return JSONResponse(
+            status_code=200,
+            content={"subscribers": subscribers}
+        )
+        
+    except Exception as e:
+        print(f"❌ Get subscribers error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to get subscribers: {str(e)}"}
+        )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
