@@ -1,0 +1,21 @@
+{
+  "id": "64cdcd1d-5b37-469e-8cb6-b56053e36efe",
+  "resend_id": "e3d8ad24-0601-42c4-8d71-516f0fd3c5b8",
+  "to": "test@example.com",
+  "subject": "Test Email from Aura Health",
+  "userName": "Test User",
+  "month": "January",
+  "year": 2024,
+  "auraScore": 85,
+  "scoreDescription": "Great job!",
+  "totalReceipts": 5,
+  "healthInsights": [
+    "Test insight"
+  ],
+  "mealSuggestions": [
+    "Test suggestion"
+  ],
+  "warnings": [],
+  "sentAt": "2025-10-19T02:56:46.945092",
+  "status": "sent"
+}
