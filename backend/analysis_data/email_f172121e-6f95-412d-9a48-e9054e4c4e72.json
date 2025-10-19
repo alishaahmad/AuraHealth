@@ -1,0 +1,17 @@
+{
+  "id": "f172121e-6f95-412d-9a48-e9054e4c4e72",
+  "resend_id": "be11d83e-da8c-42ca-86da-612cbfebda11",
+  "to": "template-debug@example.com",
+  "subject": "Template Debug Test",
+  "userName": "Debug User",
+  "month": "November",
+  "year": 2025,
+  "auraScore": 85,
+  "scoreDescription": "Test",
+  "totalReceipts": 5,
+  "healthInsights": [],
+  "mealSuggestions": [],
+  "warnings": [],
+  "sentAt": "2025-10-19T03:20:48.268666",
+  "status": "sent"
+}

@@ -1,0 +1,25 @@
+{
+  "id": "f9fec99e-88a3-46e3-aa8a-a8cd59b7496a",
+  "resend_id": "4218432e-da39-41ca-80a2-ac2cb6ede445",
+  "to": "monthly-report-final@example.com",
+  "subject": "Your November 2025 Health Snapshot from Aura \ud83c\udf1f",
+  "userName": "Monthly Report Final Test",
+  "month": "November",
+  "year": 2025,
+  "auraScore": 85,
+  "scoreDescription": "Excellent progress! Keep up the great work.",
+  "totalReceipts": 15,
+  "healthInsights": [
+    "Your vegetable intake increased by 20% this month",
+    "Great job reducing processed foods"
+  ],
+  "mealSuggestions": [
+    "Try our Mediterranean meal plan",
+    "Add more leafy greens"
+  ],
+  "warnings": [
+    "Watch sodium in canned foods"
+  ],
+  "sentAt": "2025-10-19T03:22:03.049341",
+  "status": "sent"
+}

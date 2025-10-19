@@ -8,7 +8,25 @@ from pathlib import Path
 
 class EmailTemplateLoader:
     def __init__(self):
-        self.templates_dir = Path(__file__).parent.parent / "AuraHealth" / "email-templates"
+        # Try multiple possible paths for the templates
+        possible_paths = [
+            Path(__file__).parent.parent / "AuraHealth" / "email-templates",
+            Path(__file__).parent / "email-templates",
+            Path("/Users/rubinaahmad/Downloads/AuraHealth/AuraHealth/email-templates"),
+            Path("email-templates")
+        ]
+        
+        self.templates_dir = None
+        for path in possible_paths:
+            if path.exists():
+                self.templates_dir = path
+                print(f"✅ Found templates directory: {path}")
+                break
+        
+        if not self.templates_dir:
+            print("⚠️ Templates directory not found, will use fallback templates")
+            self.templates_dir = Path("email-templates")
+        
         self.welcome_template = None
         self.monthly_report_template = None
         self._load_templates()
