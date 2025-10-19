@@ -44,7 +44,8 @@ app.add_middleware(
 
 # API Key setup
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # optional legacy
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")  # preferred for Claude via OpenRouter
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 # Initialize AI clients
@@ -54,11 +55,10 @@ if GEMINI_API_KEY:
 else:
     GEMINI_AVAILABLE = False
 
+OPENAI_AVAILABLE = False
 if OPENAI_API_KEY:
     openai.api_key = OPENAI_API_KEY
     OPENAI_AVAILABLE = True
-else:
-    OPENAI_AVAILABLE = False
 
 RESEND_AVAILABLE = bool(RESEND_API_KEY)
 
@@ -300,10 +300,10 @@ async def process_receipt(
         # Generate content
         response = model.generate_content([
             prompt,
-            {
+            {"inline_data": {
                 "mime_type": (file.content_type if file is not None else "image/png"),
                 "data": base64_image
-            }
+            }}
         ])
         
         # Parse JSON response
@@ -385,21 +385,39 @@ async def chat(request: ChatRequest):
                 "content": msg.content
             })
         
-        # Choose AI model
-        if request.model == "gemini" and GEMINI_AVAILABLE:
+        # Choose AI model with robust fallbacks
+        ai_response = None
+        if GEMINI_AVAILABLE and (request.model == "gemini" or not OPENROUTER_API_KEY):
             model = genai.GenerativeModel('gemini-2.0-flash')
             response = model.generate_content(messages[-1]["content"])
             ai_response = response.text
-        elif request.model == "openrouter" and OPENAI_AVAILABLE:
-            response = openai.ChatCompletion.create(
-                model="anthropic/claude-3.5-sonnet",
-                messages=messages,
-                max_tokens=1000,
-                temperature=0.7
-            )
-            ai_response = response.choices[0].message.content
-        else:
-            raise HTTPException(status_code=500, detail="AI service not available")
+        elif OPENROUTER_API_KEY:
+            # Call OpenRouter directly
+            try:
+                or_payload = {
+                    "model": "anthropic/claude-3.5-sonnet",
+                    "messages": messages,
+                    "max_tokens": 1000,
+                    "temperature": 0.7
+                }
+                or_headers = {
+                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+                or_resp = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=or_headers, json=or_payload, timeout=30)
+                if or_resp.ok:
+                    data = or_resp.json()
+                    ai_response = data["choices"][0]["message"]["content"]
+                else:
+                    raise Exception(or_resp.text)
+            except Exception as e:
+                print(f"OpenRouter error: {e}")
+                if GEMINI_AVAILABLE:
+                    model = genai.GenerativeModel('gemini-2.0-flash')
+                    response = model.generate_content(messages[-1]["content"])
+                    ai_response = response.text
+        if ai_response is None:
+            raise HTTPException(status_code=500, detail="AI service not available (missing GEMINI_API_KEY or OPENROUTER_API_KEY)")
         
         return {
             "success": True,
