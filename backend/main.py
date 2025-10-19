@@ -1467,6 +1467,59 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         print(f"📧 Newsletter subscription: {request.email} ({request.userName})")
         
+        # Send welcome email if Resend is available
+        if RESEND_AVAILABLE and RESEND_API_KEY:
+            try:
+                welcome_html = f"""
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #095d7e; font-size: 28px;">Welcome to Aura Health! 🌟</h1>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #e2fcd6 0%, #ccecee 100%); padding: 30px; border-radius: 16px; margin-bottom: 20px;">
+                        <h2 style="color: #095d7e; margin-bottom: 16px;">Hi {request.userName}!</h2>
+                        <p style="color: #14967f; font-size: 16px; line-height: 1.6;">
+                            Thank you for subscribing to our monthly health insights newsletter! 
+                            You'll receive personalized health recommendations, dietary insights, 
+                            and wellness tips delivered to your inbox every month.
+                        </p>
+                    </div>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://your-domain.com/dashboard" style="background: linear-gradient(135deg, #14967f 0%, #095d7e 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">
+                            Start Your Health Journey
+                        </a>
+                    </div>
+                    <div style="text-align: center; color: #14967f; font-size: 14px; margin-top: 30px;">
+                        <p>© 2024 Aura Health. Making every receipt a step toward better health.</p>
+                    </div>
+                </div>
+                """
+                
+                welcome_email = {
+                    "from": "Aura Health <hello@tryaura.health>",
+                    "to": [request.email],
+                    "subject": "Welcome to Aura Health! 🌟",
+                    "html": welcome_html
+                }
+                
+                headers = {
+                    "Authorization": f"Bearer {RESEND_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+                
+                response = requests.post(
+                    "https://api.resend.com/emails",
+                    headers=headers,
+                    json=welcome_email
+                )
+                
+                if response.status_code == 200:
+                    print(f"📧 Welcome email sent to: {request.email}")
+                else:
+                    print(f"⚠️ Failed to send welcome email: {response.text}")
+                    
+            except Exception as e:
+                print(f"⚠️ Welcome email error: {e}")
+        
         return JSONResponse(
             status_code=200,
             content={
