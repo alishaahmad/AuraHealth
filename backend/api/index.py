@@ -159,7 +159,10 @@ async def process_receipt(
             analysis_id = str(uuid.uuid4())[:8]
             with open(os.path.join(DATA_DIR, f"analysis_{analysis_id}.json"), 'w') as f:
                 json.dump(demo, f, indent=2)
-            return {"success": True, "analysis_id": analysis_id, "data": demo}
+            # Return flat fields expected by the frontend OCRService
+            demo_response = {"success": True, "analysis_id": analysis_id}
+            demo_response.update(demo)
+            return demo_response
         
         # Accept either a binary file upload (field name: "file") or a base64 string (field name: "image_data")
         if file is not None:
@@ -339,11 +342,9 @@ async def process_receipt(
         
         print(f"Analysis saved with ID: {analysis_id}")
         
-        return {
-            "success": True,
-            "analysis_id": analysis_id,
-            "data": analysis_data
-        }
+        response_payload = {"success": True, "analysis_id": analysis_id}
+        response_payload.update(analysis_data)
+        return response_payload
         
     except Exception as e:
         print(f"Error processing receipt: {e}")
