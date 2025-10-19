@@ -29,6 +29,22 @@ except ImportError:
     print("Warning: OpenAI not available. Install with: pip install openai")
 
 try:
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    EMAIL_AVAILABLE = True
+except ImportError:
+    EMAIL_AVAILABLE = False
+    print("Warning: Email functionality not available. Install with: pip install smtplib")
+
+try:
+    import requests
+    RESEND_AVAILABLE = True
+except ImportError:
+    RESEND_AVAILABLE = False
+    print("Warning: Requests not available. Install with: pip install requests")
+
+try:
     import easyocr
     from PIL import Image
     import io
@@ -40,6 +56,11 @@ except ImportError:
 
 # Load environment variables
 load_dotenv()
+
+# Get API keys
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 # Create data directory for saving analysis results
 DATA_DIR = "analysis_data"
@@ -111,6 +132,25 @@ class HealthAnalysis(BaseModel):
     health_score: int
     warnings: List[str]
     suggestions: List[str]
+
+class EmailRequest(BaseModel):
+    to: str
+    subject: str
+    html: str
+    userName: str
+    month: str
+    year: int
+    auraScore: int
+    scoreDescription: str
+    totalReceipts: Optional[int] = 0
+    healthInsights: Optional[List[str]] = []
+    mealSuggestions: Optional[List[str]] = []
+    warnings: Optional[List[str]] = []
+
+class NewsletterSubscription(BaseModel):
+    email: str
+    userName: str
+    subscribedAt: str
 
 # OCR Service
 class OCRService:
@@ -1325,6 +1365,148 @@ async def websocket_endpoint(websocket: WebSocket):
     except Exception as e:
         print(f"❌ WebSocket error: {e}")
         manager.disconnect(websocket)
+
+# Email endpoints
+@app.post("/api/send-email")
+async def send_email(request: EmailRequest):
+    """Send monthly health report email"""
+    try:
+        if not RESEND_AVAILABLE or not RESEND_API_KEY:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Resend API not available or API key missing"}
+            )
+        
+        # Send email via Resend API
+        email_data = {
+            "from": "Aura Health <hello@tryaura.health>",
+            "to": [request.to],
+            "subject": request.subject,
+            "html": request.html
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type": "application/json"
+        }
+        
+        response = requests.post(
+            "https://api.resend.com/emails",
+            headers=headers,
+            json=email_data
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"📧 Email sent successfully to: {request.to}")
+            print(f"📧 Resend ID: {result.get('id')}")
+            
+            # Save email data for tracking
+            email_record = {
+                "id": str(uuid.uuid4()),
+                "resend_id": result.get('id'),
+                "to": request.to,
+                "subject": request.subject,
+                "userName": request.userName,
+                "month": request.month,
+                "year": request.year,
+                "auraScore": request.auraScore,
+                "scoreDescription": request.scoreDescription,
+                "totalReceipts": request.totalReceipts,
+                "healthInsights": request.healthInsights,
+                "mealSuggestions": request.mealSuggestions,
+                "warnings": request.warnings,
+                "sentAt": datetime.now().isoformat(),
+                "status": "sent"
+            }
+            
+            # Save to file (in production, use a database)
+            email_file = os.path.join(DATA_DIR, f"email_{email_record['id']}.json")
+            with open(email_file, 'w') as f:
+                json.dump(email_record, f, indent=2)
+            
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Email sent successfully!",
+                    "emailId": email_record['id'],
+                    "resendId": result.get('id')
+                }
+            )
+        else:
+            print(f"❌ Resend API error: {response.status_code} - {response.text}")
+            return JSONResponse(
+                status_code=500,
+                content={"error": f"Failed to send email: {response.text}"}
+            )
+        
+    except Exception as e:
+        print(f"❌ Email sending error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to send email: {str(e)}"}
+        )
+
+@app.post("/api/newsletter/subscribe")
+async def subscribe_newsletter(request: NewsletterSubscription):
+    """Subscribe user to newsletter"""
+    try:
+        # Save subscription data
+        subscription_data = {
+            "id": str(uuid.uuid4()),
+            "email": request.email,
+            "userName": request.userName,
+            "subscribedAt": request.subscribedAt,
+            "status": "active"
+        }
+        
+        # Save to file (in production, use a database)
+        subscription_file = os.path.join(DATA_DIR, f"subscription_{subscription_data['id']}.json")
+        with open(subscription_file, 'w') as f:
+            json.dump(subscription_data, f, indent=2)
+        
+        print(f"📧 Newsletter subscription: {request.email} ({request.userName})")
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Successfully subscribed to newsletter!",
+                "subscriptionId": subscription_data['id']
+            }
+        )
+        
+    except Exception as e:
+        print(f"❌ Newsletter subscription error: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to subscribe to newsletter: {str(e)}"}
+        )
+
+@app.get("/api/newsletter/subscribers")
+async def get_subscribers():
+    """Get all newsletter subscribers"""
+    try:
+        subscribers = []
+        for filename in os.listdir(DATA_DIR):
+            if filename.startswith("subscription_"):
+                with open(os.path.join(DATA_DIR, filename), 'r') as f:
+                    subscriber = json.load(f)
+                    subscribers.append(subscriber)
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "subscribers": subscribers,
+                "count": len(subscribers)
+            }
+        )
+        
+    except Exception as e:
+        print(f"❌ Error getting subscribers: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to get subscribers: {str(e)}"}
+        )
 
 if __name__ == "__main__":
     uvicorn.run(

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EmailService } from "@/services/emailService";
 import { 
   Mail, 
   Camera, 
@@ -87,13 +88,32 @@ export function LandingPage({ onNavigateToAbout, onNavigateToDashboard, onSubscr
     onNavigateToAbout();
   };
 
-  const handleSubscribe = (e: React.FormEvent) => {
+  const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Newsletter form submitted with email:', email);
+    
     if (email) {
-      onSubscribeNewsletter(email);
-      setIsSubscribed(true);
-      setEmail('');
-      setTimeout(() => setIsSubscribed(false), 3000);
+      try {
+        console.log('Attempting to subscribe to newsletter...');
+        const result = await EmailService.subscribeToNewsletter(email, 'Valued User');
+        console.log('Newsletter subscription result:', result);
+        
+        if (result.success) {
+          setIsSubscribed(true);
+          setEmail('');
+          setTimeout(() => setIsSubscribed(false), 3000);
+          // Also call the original callback for any additional handling
+          onSubscribeNewsletter(email);
+        } else {
+          console.error('Newsletter subscription failed:', result.message);
+          // You could add a toast notification here
+        }
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        // You could add a toast notification here
+      }
+    } else {
+      console.log('No email provided');
     }
   };
 
@@ -542,19 +562,24 @@ export function LandingPage({ onNavigateToAbout, onNavigateToDashboard, onSubscr
             delivered to your inbox every month.
           </p>
           
-          <form onSubmit={handleSubscribe} className="max-w-md mx-auto">
-            <div className="flex gap-3">
+          <form onSubmit={handleSubscribe} className="max-w-md mx-auto relative z-10">
+            <div className="flex gap-3 items-center">
               <Input
                 type="email"
                 placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-white/80 border-[#14967f]/50 text-[#095d7e] placeholder:text-[#14967f]/70 rounded-xl"
+                className="bg-white/80 border-[#14967f]/50 text-[#095d7e] placeholder:text-[#14967f]/70 rounded-xl flex-1 cursor-text"
                 required
               />
               <Button 
                 type="submit" 
-                className="bg-gradient-to-r from-[#14967f] to-[#095d7e] hover:from-[#14967f]/90 hover:to-[#095d7e]/90 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+                onClick={(e) => {
+                  console.log('Subscribe button clicked');
+                  e.preventDefault();
+                  handleSubscribe(e);
+                }}
+                className="bg-gradient-to-r from-[#14967f] to-[#095d7e] hover:from-[#14967f]/90 hover:to-[#095d7e]/90 text-white px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Subscribe
