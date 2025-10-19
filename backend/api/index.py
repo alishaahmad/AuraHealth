@@ -12,6 +12,8 @@ import google.generativeai as genai
 import openai
 from dotenv import load_dotenv
 import requests
+from email_templates import get_welcome_email_template, get_monthly_report_template
+from email_sender import python_email_sender
 
 # Load environment variables
 load_dotenv()
@@ -449,11 +451,27 @@ async def send_email(request: EmailRequest):
                 content={"error": "Resend API not available or API key missing"}
             )
         
+        # Use the proper email template for monthly reports
+        if "Health Snapshot" in request.subject:
+            html_content = get_monthly_report_template(
+                user_name=request.userName,
+                month=request.month,
+                year=request.year,
+                aura_score=request.auraScore,
+                score_description=request.scoreDescription,
+                total_receipts=request.totalReceipts,
+                health_insights=request.healthInsights,
+                meal_suggestions=request.mealSuggestions,
+                warnings=request.warnings
+            )
+        else:
+            html_content = request.html
+        
         email_data = {
             "from": "Aura Health <hello@tryaura.health>",
             "to": [request.to],
             "subject": request.subject,
-            "html": request.html
+            "html": html_content
         }
         
         headers = {
@@ -482,17 +500,53 @@ async def send_email(request: EmailRequest):
             )
         else:
             print(f"❌ Resend API error: {response.status_code} - {response.text}")
-            return JSONResponse(
-                status_code=500,
-                content={"error": f"Failed to send email: {response.text}"}
-            )
+            print("🔄 Trying Python SMTP fallback...")
+            
+            # Try fallback email sender
+            if python_email_sender.send_email(
+                to_email=request.to,
+                subject=request.subject,
+                html_content=html_content,
+                sender_name="Aura Health"
+            ):
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "message": "Email sent successfully via fallback!",
+                        "emailId": str(uuid.uuid4()),
+                        "method": "python_smtp"
+                    }
+                )
+            else:
+                return JSONResponse(
+                    status_code=500,
+                    content={"error": f"Failed to send email via both Resend and SMTP: {response.text}"}
+                )
         
     except Exception as e:
         print(f"❌ Email sending error: {e}")
-        return JSONResponse(
-            status_code=500,
-            content={"error": f"Failed to send email: {str(e)}"}
-        )
+        print("🔄 Trying Python SMTP fallback...")
+        
+        # Try fallback email sender
+        if python_email_sender.send_email(
+            to_email=request.to,
+            subject=request.subject,
+            html_content=html_content,
+            sender_name="Aura Health"
+        ):
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "message": "Email sent successfully via fallback!",
+                    "emailId": str(uuid.uuid4()),
+                    "method": "python_smtp"
+                }
+            )
+        else:
+            return JSONResponse(
+                status_code=500,
+                content={"error": f"Failed to send email: {str(e)}"}
+            )
 
 @app.post("/api/newsletter/subscribe")
 async def subscribe_newsletter(request: NewsletterSubscription):
@@ -513,29 +567,8 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         if RESEND_AVAILABLE and RESEND_API_KEY:
             try:
-                welcome_html = f"""
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #095d7e; font-size: 28px;">Welcome to Aura Health! 🌟</h1>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #e2fcd6 0%, #ccecee 100%); padding: 30px; border-radius: 16px; margin-bottom: 20px;">
-                        <h2 style="color: #095d7e; margin-bottom: 16px;">Hi {request.userName}!</h2>
-                        <p style="color: #14967f; font-size: 16px; line-height: 1.6;">
-                            Thank you for subscribing to our monthly health insights newsletter! 
-                            You'll receive personalized health recommendations, dietary insights, 
-                            and wellness tips delivered to your inbox every month.
-                        </p>
-                    </div>
-                    <div style="text-align: center; margin: 30px 0;">
-                        <a href="https://aura-health.vercel.app/dashboard" style="background: linear-gradient(135deg, #14967f 0%, #095d7e 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 12px; font-weight: bold; display: inline-block;">
-                            Start Your Health Journey
-                        </a>
-                    </div>
-                    <div style="text-align: center; color: #14967f; font-size: 14px; margin-top: 30px;">
-                        <p>© 2024 Aura Health. Making every receipt a step toward better health.</p>
-                    </div>
-                </div>
-                """
+                # Use the proper email template
+                welcome_html = get_welcome_email_template(request.userName)
                 
                 welcome_email = {
                     "from": "Aura Health <hello@tryaura.health>",
@@ -558,10 +591,24 @@ async def subscribe_newsletter(request: NewsletterSubscription):
                 if response.status_code == 200:
                     print(f"📧 Welcome email sent to: {request.email}")
                 else:
-                    print(f"⚠️ Failed to send welcome email: {response.text}")
+                    print(f"⚠️ Resend failed, trying Python SMTP: {response.text}")
+                    # Try fallback email sender
+                    python_email_sender.send_email(
+                        to_email=request.email,
+                        subject="Welcome to Aura Health! 🌟",
+                        html_content=welcome_html,
+                        sender_name="Aura Health"
+                    )
                     
             except Exception as e:
-                print(f"⚠️ Welcome email error: {e}")
+                print(f"⚠️ Resend error, trying Python SMTP: {e}")
+                # Try fallback email sender
+                python_email_sender.send_email(
+                    to_email=request.email,
+                    subject="Welcome to Aura Health! 🌟",
+                    html_content=welcome_html,
+                    sender_name="Aura Health"
+                )
         
         return JSONResponse(
             status_code=200,

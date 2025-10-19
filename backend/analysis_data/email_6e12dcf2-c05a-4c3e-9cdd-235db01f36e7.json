@@ -1,0 +1,25 @@
+{
+  "id": "6e12dcf2-c05a-4c3e-9cdd-235db01f36e7",
+  "resend_id": "13004e85-83e4-4842-b3c2-970f518c14e9",
+  "to": "test@example.com",
+  "subject": "Test Email from Aura Health",
+  "userName": "Test User",
+  "month": "January",
+  "year": 2024,
+  "auraScore": 85,
+  "scoreDescription": "Great job!",
+  "totalReceipts": 5,
+  "healthInsights": [
+    "Eat more vegetables",
+    "Drink more water"
+  ],
+  "mealSuggestions": [
+    "Try a green smoothie",
+    "Add more protein"
+  ],
+  "warnings": [
+    "Watch sodium intake"
+  ],
+  "sentAt": "2025-10-19T02:45:30.455404",
+  "status": "sent"
+}
