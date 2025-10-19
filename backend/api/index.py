@@ -567,7 +567,7 @@ async def subscribe_newsletter(request: NewsletterSubscription):
         
         if RESEND_AVAILABLE and RESEND_API_KEY:
             try:
-                # Use the proper email template
+                # Use the React Email template from frontend
                 welcome_html = get_welcome_email_template(request.userName)
                 
                 welcome_email = {

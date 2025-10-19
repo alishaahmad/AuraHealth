@@ -1,5 +1,6 @@
 """
 Email templates for Aura Health
+Note: These are fallback templates. The main templates are now React Email components.
 """
 
 def get_welcome_email_template(user_name: str) -> str:

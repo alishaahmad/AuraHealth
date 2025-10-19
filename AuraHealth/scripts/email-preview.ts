@@ -3,77 +3,55 @@ import path from "path";
 import { execSync } from "child_process";
 import { render } from "@react-email/components";
 import AuraMonthlyReport from "../src/components/AuraMonthlyReport";
+import WelcomeEmail from "../src/components/WelcomeEmail";
 
 const OUT_DIR = path.join(process.cwd(), "tmp");
 const OUT_FILE = path.join(OUT_DIR, "aura-preview.html");
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const SHOULD_SEND = process.env.SEND === "true";
-const FROM = process.env.FROM || "Aura Health <hello@tryaura.health>";
-const TO = process.env.TO || "your.email@example.com";
-
 async function main() {
-  const maybeHtml = render(
+  console.log("🎨 Generating email previews...");
+  
+  // Generate monthly report preview
+  const monthlyReportHtml = await render(
     AuraMonthlyReport({
       userName: "Test User",
       month: "November",
-      year: 2024,
+      year: 2025,
       auraScore: 78,
       scoreDescription: "You're on the right track—keep making small changes for even better results!",
-      totalReceipts: 15,
-      healthInsights: [
-        "Your vegetable intake has increased by 15% this month",
-        "Consider reducing processed foods for better health",
-        "Great job on choosing whole grains over refined options"
-      ],
-      mealSuggestions: [
-        "Try our Mediterranean-inspired meal plan",
-        "Add more leafy greens to your salads",
-        "Consider plant-based protein alternatives"
-      ],
-      warnings: [
-        "Watch out for high sodium in canned foods",
-        "Consider reducing sugar intake from beverages"
-      ]
     })
   );
-  const html = await Promise.resolve(maybeHtml);
-
-  if (!SHOULD_SEND || !RESEND_API_KEY) {
-    fs.mkdirSync(OUT_DIR, { recursive: true });
-    fs.writeFileSync(OUT_FILE, html, "utf8");
-    console.log(`Preview written to ${OUT_FILE}`);
-    try {
-      execSync(`open ${OUT_FILE}`);
-      console.log("Opened preview in default browser.");
-    } catch {
-      console.log("Could not open browser automatically.");
-    }
-    return;
-  }
-
-  const { Resend } = await import("resend");
-  const resend = new Resend(RESEND_API_KEY);
-
+  
+  // Generate welcome email preview
+  const welcomeEmailHtml = await render(
+    WelcomeEmail({
+      userName: "Test User"
+    })
+  );
+  
+  // Create output directory
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  
+  // Write monthly report preview
+  const monthlyReportFile = path.join(OUT_DIR, "monthly-report-preview.html");
+  fs.writeFileSync(monthlyReportFile, monthlyReportHtml, "utf8");
+  console.log(`📊 Monthly report preview written to ${monthlyReportFile}`);
+  
+  // Write welcome email preview
+  const welcomeEmailFile = path.join(OUT_DIR, "welcome-email-preview.html");
+  fs.writeFileSync(welcomeEmailFile, welcomeEmailHtml, "utf8");
+  console.log(`🌟 Welcome email preview written to ${welcomeEmailFile}`);
+  
+  // Open the monthly report preview
   try {
-    const resp = await resend.emails.send({
-      from: FROM,
-      to: TO,
-      subject: "Your November Health Snapshot from Aura 🌟",
-      html,
-    });
-    console.log("Email sent successfully!");
-    console.log("Send response:", resp);
-  } catch (err) {
-    console.error("Send error (full):", err);
-    try {
-      console.error("err.response?.data:", JSON.stringify(err?.response?.data, null, 2));
-    } catch {}
-    process.exit(1);
+    execSync(`open ${monthlyReportFile}`);
+    console.log("📱 Opened monthly report preview in default browser.");
+  } catch {
+    console.log("❌ Could not open browser automatically.");
   }
 }
 
 main().catch((err) => {
-  console.error("Unexpected error:", err);
+  console.error("❌ Unexpected error:", err);
   process.exit(1);
 });

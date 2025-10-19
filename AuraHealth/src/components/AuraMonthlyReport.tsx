@@ -1,410 +1,615 @@
 import {
   Body,
+  Button,
   Container,
   Head,
   Heading,
   Html,
-  Img,
-  Link,
   Preview,
   Section,
   Text,
-  Hr,
   Row,
   Column,
 } from "@react-email/components";
-// import React from "react";
 
-interface AuraMonthlyReportProps {
-  userName: string;
-  month: string;
-  year: number;
-  auraScore: number;
-  scoreDescription: string;
-  totalReceipts?: number;
-  healthInsights?: string[];
-  mealSuggestions?: string[];
-  warnings?: string[];
+interface MetricData {
+  value: string | number;
+  label: string;
+  description: string;
+  isWarning?: boolean;
 }
 
-export const AuraMonthlyReport = ({
-  userName = "Valued User",
+interface ListItem {
+  title: string;
+  description: string;
+}
+
+interface SwapItem {
+  title: string;
+  text: string;
+}
+
+interface AuraMonthlyReportProps {
+  userName?: string;
+  month?: string;
+  year?: number;
+  introText?: string;
+  auraScore?: number;
+  scoreDescription?: string;
+  metrics?: MetricData[];
+  highlightTitle?: string;
+  highlightText?: string;
+  medicationInteractions?: ListItem[];
+  conditionFlags?: ListItem[];
+  smartSwaps?: SwapItem[];
+}
+
+const defaultMetrics: MetricData[] = [
+  { value: 12, label: "Receipts Scanned", description: "Tracked your grocery purchases throughout the month.", isWarning: false },
+  { value: 8, label: "Healthy Swaps", description: "Smart substitutions for better health outcomes.", isWarning: false },
+  { value: 2, label: "Med Interactions", description: "Foods flagged for potential medication conflicts.", isWarning: true },
+  { value: 0, label: "Allergen Exposures", description: "Successfully avoided your tracked allergens.", isWarning: false },
+  { value: 3, label: "Health Flags", description: "Items to watch based on your conditions.", isWarning: true },
+  { value: "$47", label: "Est. Savings", description: "Money saved through healthier choices.", isWarning: false },
+];
+
+const defaultMedicationInteractions: ListItem[] = [
+  { title: "Grapefruit Juice", description: "May interfere with your statin medication (atorvastatin), potentially increasing side effects. Consider alternative citrus options." },
+  { title: "High Vitamin K (Kale Chips)", description: "Can affect blood thinner effectiveness. Consistency is key—maintain steady vitamin K intake with your warfarin regimen." },
+];
+
+const defaultConditionFlags: ListItem[] = [
+  { title: "High Sodium Content (Canned Soup)", description: "Your hypertension profile suggests limiting sodium to 1,500mg daily. This item contains 42% of that in one serving." },
+  { title: "Added Sugars (Flavored Yogurt)", description: "For prediabetes management, watch for hidden sugars. This contains 18g added sugar per serving—consider plain yogurt with fresh fruit." },
+  { title: "Gluten (Wheat Pasta)", description: "You've noted gluten sensitivity. We detected gluten-containing items on 3 receipts this month." },
+];
+
+const defaultSmartSwaps: SwapItem[] = [
+  { title: "Canned Soup → Low-Sodium Bone Broth", text: "Better for blood pressure management. 75% less sodium, more protein, supports your heart health goals." },
+  { title: "Regular Pasta → Chickpea Pasta", text: "Naturally gluten-free and higher in protein. Helps stabilize blood sugar while accommodating your sensitivity." },
+  { title: "Grapefruit → Orange Juice", text: "Safe with your statin medication. No drug interaction risk, still provides vitamin C and morning brightness." },
+];
+
+export default function AuraMonthlyReport({
+  userName = "There",
   month = "November",
-  year = 2024,
-  auraScore = 75,
-  scoreDescription = "You're doing great! Keep up the healthy choices.",
-  totalReceipts = 12,
-  healthInsights = [
-    "Your vegetable intake has increased by 15% this month",
-    "Consider reducing processed foods for better health",
-    "Great job on choosing whole grains over refined options"
-  ],
-  mealSuggestions = [
-    "Try our Mediterranean-inspired meal plan",
-    "Add more leafy greens to your salads",
-    "Consider plant-based protein alternatives"
-  ],
-  warnings = [
-    "Watch out for high sodium in canned foods",
-    "Consider reducing sugar intake from beverages"
-  ]
-}: AuraMonthlyReportProps) => {
-  const previewText = `Your ${month} ${year} Health Snapshot from Aura Health`;
+  year = 2025,
+  introText = "Here's a quiet reflection of your wellness journey through November 2025. We've been watching for ingredients that may interact with your medications, monitoring for allergens, and highlighting choices that align with your health profile.",
+  auraScore = 78,
+  scoreDescription = "You're on the right track—keep making small changes for even better results!",
+  metrics = defaultMetrics,
+  highlightTitle = "Unbelievable Progress!",
+  highlightText = "You're making thoughtful, nourishing choices that support your health goals. Every smart swap and mindful decision is helping you build lasting wellness habits.",
+  medicationInteractions = defaultMedicationInteractions,
+  conditionFlags = defaultConditionFlags,
+  smartSwaps = defaultSmartSwaps,
+}: AuraMonthlyReportProps) {
+  // Use userName in the preview text
+  const previewText = `Your ${month} ${year} wellness snapshot is ready, ${userName}`;
 
   return (
     <Html>
-      <Head />
+      <Head>
+        <meta name="color-scheme" content="light only" />
+        <meta name="supported-color-schemes" content="light" />
+        <style>{`
+          @media (prefers-color-scheme: dark) {
+            body {
+              background-color: #ccecee !important;
+            }
+          }
+        `}</style>
+      </Head>
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Header */}
           <Section style={header}>
-            <Img
-              src="https://your-domain.com/logo.png"
-              width="60"
-              height="60"
-              alt="Aura Health"
-              style={logo}
-            />
-            <Heading style={headerTitle}>Aura Health</Heading>
+            <Text style={logo}>AURA HEALTH</Text>
+            <Heading style={headerTitle}>Your {month} Snapshot</Heading>
+            <Text style={headerSubtitle}>All Fresh And Updated</Text>
           </Section>
 
-          {/* Hero Section */}
-          <Section style={hero}>
-            <Heading style={heroTitle}>
-              Your {month} {year} Health Snapshot 🌟
-            </Heading>
-            <Text style={heroSubtitle}>
-              Hi {userName}, here's how you've been doing with your health journey this month.
-            </Text>
+          <Section style={introSection}>
+            <Text style={introTextStyle}>{introText}</Text>
+            <Button style={ctaButton} href="#">
+              Learn More
+            </Button>
           </Section>
 
-          {/* Aura Score */}
           <Section style={scoreSection}>
-            <div style={scoreContainer}>
-              <Text style={scoreLabel}>Your Aura Score</Text>
-              <div style={scoreCircle}>
-                <Text style={scoreNumber}>{auraScore}</Text>
+            <Text style={sectionTitle}>YOUR AURA SCORE</Text>
+            <Section style={scoreCard}>
+              <Heading style={scoreNumber}>{auraScore}</Heading>
+              <Text style={scoreLabel}>Out Of 100</Text>
+              <div style={progressBarContainer}>
+                <div style={{ ...progressBar, width: `${auraScore}%` }} />
               </div>
               <Text style={scoreDescriptionStyle}>{scoreDescription}</Text>
-            </div>
-          </Section>
-
-          {/* Stats */}
-          <Section style={statsSection}>
-            <Row>
-              <Column style={statColumn}>
-                <Text style={statNumber}>{totalReceipts}</Text>
-                <Text style={statLabel}>Receipts Analyzed</Text>
-              </Column>
-              <Column style={statColumn}>
-                <Text style={statNumber}>{healthInsights.length}</Text>
-                <Text style={statLabel}>Health Insights</Text>
-              </Column>
-              <Column style={statColumn}>
-                <Text style={statNumber}>{mealSuggestions.length}</Text>
-                <Text style={statLabel}>Meal Suggestions</Text>
-              </Column>
-            </Row>
-          </Section>
-
-          {/* Health Insights */}
-          <Section style={insightsSection}>
-            <Heading style={sectionTitle}>🏥 Health Insights</Heading>
-            {healthInsights.map((insight, index) => (
-              <div key={index} style={insightItem}>
-                <Text style={insightText}>• {insight}</Text>
-              </div>
-            ))}
-          </Section>
-
-          {/* Meal Suggestions */}
-          <Section style={suggestionsSection}>
-            <Heading style={sectionTitle}>🍽️ Meal Suggestions</Heading>
-            {mealSuggestions.map((suggestion, index) => (
-              <div key={index} style={suggestionItem}>
-                <Text style={suggestionText}>• {suggestion}</Text>
-              </div>
-            ))}
-          </Section>
-
-          {/* Warnings */}
-          {warnings.length > 0 && (
-            <Section style={warningsSection}>
-              <Heading style={sectionTitle}>⚠️ Areas to Watch</Heading>
-              {warnings.map((warning, index) => (
-                <div key={index} style={warningItem}>
-                  <Text style={warningText}>• {warning}</Text>
-                </div>
-              ))}
             </Section>
-          )}
-
-          {/* CTA */}
-          <Section style={ctaSection}>
-            <Link href="https://your-domain.com/dashboard" style={ctaButton}>
-              View Full Dashboard
-            </Link>
-            <Text style={ctaText}>
-              Keep tracking your health journey with Aura Health
-            </Text>
           </Section>
 
-          <Hr style={hr} />
+          {/* Features Grid - Fixed with table layout */}
+          <Section style={featuresSection}>
+            <table role="presentation" width="100%" cellPadding="0" cellSpacing="0" border={0}>
+              <tbody>
+                <tr>
+                  {metrics.slice(0, 3).map((metric, i) => (
+                    <td key={i} width="33.333%" style={featureColumn}>
+                      <table style={featureIconTableWrapper} align="center" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                          <tr>
+                            <td style={{
+                              width: "80px",
+                              height: "80px",
+                              backgroundColor: "#e2fcd6",
+                              borderRadius: "50%",
+                              border: "2px solid #ccecee",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                              fontSize: "36px",
+                              fontWeight: "700",
+                              color: metric.isWarning ? "#dc3545" : "#095d7e",
+                              lineHeight: "1"
+                            }}>
+                              {metric.value}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <Text style={featureTitle}>{metric.label}</Text>
+                      <Text style={featureDescription}>{metric.description}</Text>
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  {metrics.slice(3, 6).map((metric, i) => (
+                    <td key={i} width="33.333%" style={featureColumn}>
+                      <table style={featureIconTableWrapper} align="center" cellPadding="0" cellSpacing="0">
+                        <tbody>
+                          <tr>
+                            <td style={{
+                              width: "80px",
+                              height: "80px",
+                              backgroundColor: "#e2fcd6",
+                              borderRadius: "50%",
+                              border: "2px solid #ccecee",
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                              fontSize: "36px",
+                              fontWeight: "700",
+                              color: metric.isWarning ? "#dc3545" : "#095d7e",
+                              lineHeight: "1"
+                            }}>
+                              {metric.value}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <Text style={featureTitle}>{metric.label}</Text>
+                      <Text style={featureDescription}>{metric.description}</Text>
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </Section>
 
-          {/* Footer */}
+          <Section style={highlightSection}>
+            <Heading style={highlightTitleStyle}>{highlightTitle}</Heading>
+            <Text style={highlightTextStyle}>{highlightText}</Text>
+          </Section>
+
+          <Section style={contentSection}>
+            <Heading style={contentTitle}>From Your Health Report</Heading>
+            <Text style={contentIntro}>
+              Here are the key insights and recommendations based on your health
+              profile, medication regimen, and dietary preferences for {month} {year}.
+            </Text>
+
+            {medicationInteractions && medicationInteractions.length > 0 && (
+              <Section style={listSection}>
+                <Text style={listTitle}>MEDICATION INTERACTIONS DETECTED</Text>
+                {medicationInteractions.map((item, idx) => (
+                  <Section key={idx} style={listItem}>
+                    <Row>
+                      <Column style={bulletColumn}>
+                        <div style={bullet} />
+                      </Column>
+                      <Column style={listContentColumn}>
+                        <Text style={listItemTitle}>{item.title}</Text>
+                        <Text style={listItemText}>{item.description}</Text>
+                      </Column>
+                    </Row>
+                  </Section>
+                ))}
+              </Section>
+            )}
+
+            {conditionFlags && conditionFlags.length > 0 && (
+              <Section style={listSection}>
+                <Text style={listTitle}>CONDITION-SPECIFIC CONSIDERATIONS</Text>
+                {conditionFlags.map((item, idx) => (
+                  <Section key={idx} style={listItem}>
+                    <Row>
+                      <Column style={bulletColumn}>
+                        <div style={bullet} />
+                      </Column>
+                      <Column style={listContentColumn}>
+                        <Text style={listItemTitle}>{item.title}</Text>
+                        <Text style={listItemText}>{item.description}</Text>
+                      </Column>
+                    </Row>
+                  </Section>
+                ))}
+              </Section>
+            )}
+
+            {smartSwaps && smartSwaps.length > 0 && (
+              <>
+                {smartSwaps.map((swap, idx) => (
+                  <Section key={idx} style={insightCard}>
+                    <Heading style={insightTitle}>Smart Swap #{idx + 1}</Heading>
+                    <Text style={insightText}>
+                      <strong style={{ color: "#14967f" }}>{swap.title}</strong>
+                      <br />
+                      {swap.text}
+                    </Text>
+                    <Button style={insightButton} href="#">
+                      Learn More
+                    </Button>
+                  </Section>
+                ))}
+              </>
+            )}
+          </Section>
+
           <Section style={footer}>
             <Text style={footerText}>
-              © {year} Aura Health. Making every receipt a step toward better health.
+              This information is for general wellness purposes only and is not
+              medical advice. Aura Health provides observational insights based
+              on ingredient analysis, your health profile, known medication
+              interactions, and allergen databases. Always consult your
+              healthcare provider before making dietary changes.
             </Text>
-            <Text style={footerText}>
-              <Link href="https://your-domain.com/unsubscribe" style={footerLink}>
-                Unsubscribe
-              </Link>
-              {" • "}
-              <Link href="https://your-domain.com/privacy" style={footerLink}>
-                Privacy Policy
-              </Link>
-            </Text>
+            <Text style={footerInfo}>Aura Health · Sent With Care · {month} {year}</Text>
           </Section>
         </Container>
       </Body>
     </Html>
   );
-};
+}
 
-// Styles
-const main = {
-  backgroundColor: "#f1f9ff",
-  fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif',
-};
-
-const container = {
-  margin: "0 auto",
-  padding: "20px 0 48px",
-  maxWidth: "600px",
-};
-
-const header = {
-  textAlign: "center" as const,
+// Styles - Updated with dark mode fixes and proper centering
+const main = { 
+  backgroundColor: "#ccecee", 
+  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
   padding: "20px 0",
-  borderBottom: "1px solid #e2fcd6",
+  WebkitTextSizeAdjust: "100%"
 };
 
-const logo = {
-  margin: "0 auto 10px",
-  borderRadius: "12px",
+const container = { 
+  maxWidth: "600px", 
+  margin: "0 auto", 
+  backgroundColor: "#f1f9ff",
+  borderRadius: "16px",
+  overflow: "hidden"
 };
 
-const headerTitle = {
-  color: "#095d7e",
-  fontSize: "28px",
-  fontWeight: "bold",
-  margin: "0",
+const header = { 
+  backgroundColor: "#14967f", 
+  color: "#f1f9ff", 
+  textAlign: "center" as const, 
+  padding: "60px 40px"
 };
 
-const hero = {
+const logo = { 
+  fontSize: "14px", 
+  fontWeight: "400", 
+  letterSpacing: "2px", 
+  textTransform: "uppercase" as const, 
+  marginBottom: "20px", 
+  opacity: 0.9, 
+  color: "#f1f9ff",
+  margin: "0 0 20px 0"
+};
+
+const headerTitle = { 
+  fontSize: "36px", 
+  fontWeight: "700", 
+  marginBottom: "12px", 
+  letterSpacing: "-0.5px", 
+  color: "#f1f9ff", 
+  margin: "0 0 12px 0" 
+};
+
+const headerSubtitle = { 
+  fontSize: "16px", 
+  fontWeight: "400", 
+  opacity: 0.95, 
+  letterSpacing: "0.5px", 
+  color: "#f1f9ff", 
+  margin: "0" 
+};
+
+const introSection = { 
+  padding: "50px 40px", 
   textAlign: "center" as const,
-  padding: "40px 20px",
-  background: "linear-gradient(135deg, #e2fcd6 0%, #ccecee 100%)",
-  borderRadius: "16px",
-  margin: "20px 0",
+  backgroundColor: "#f1f9ff"
 };
 
-const heroTitle = {
-  color: "#095d7e",
-  fontSize: "32px",
-  fontWeight: "bold",
-  margin: "0 0 16px 0",
+const introTextStyle = { 
+  fontSize: "15px", 
+  lineHeight: "26px", 
+  color: "#095d7e", 
+  maxWidth: "500px", 
+  margin: "0 auto 30px" 
 };
 
-const heroSubtitle = {
-  color: "#14967f",
-  fontSize: "18px",
-  margin: "0",
+const ctaButton = { 
+  backgroundColor: "#14967f", 
+  color: "#f1f9ff", 
+  padding: "14px 32px", 
+  textDecoration: "none", 
+  borderRadius: "25px", 
+  fontWeight: "600", 
+  fontSize: "14px", 
+  letterSpacing: "0.5px", 
+  textTransform: "uppercase" as const, 
+  display: "inline-block" 
 };
 
-const scoreSection = {
+const scoreSection = { 
+  padding: "60px 40px 50px 40px", 
+  backgroundColor: "#f1f9ff" 
+};
+
+const sectionTitle = { 
+  textAlign: "center" as const, 
+  fontSize: "16px", 
+  fontWeight: "800", 
+  color: "#095d7e", 
+  textTransform: "uppercase" as const, 
+  letterSpacing: "1.5px", 
+  margin: "0 0 40px 0" 
+};
+
+const scoreCard = { 
+  backgroundColor: "#e8f5f3", 
+  borderRadius: "16px", 
+  padding: "40px", 
   textAlign: "center" as const,
-  padding: "30px 20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  border: "2px solid #ccecee"
 };
 
-const scoreContainer = {
-  display: "flex",
-  flexDirection: "column" as const,
-  alignItems: "center",
+const scoreNumber = { 
+  fontSize: "72px", 
+  fontWeight: "700", 
+  color: "#14967f", 
+  lineHeight: "1", 
+  marginBottom: "10px", 
+  margin: "0 0 10px 0" 
 };
 
-const scoreLabel = {
-  color: "#14967f",
-  fontSize: "16px",
-  fontWeight: "600",
-  margin: "0 0 16px 0",
+const scoreLabel = { 
+  fontSize: "18px", 
+  color: "#095d7e", 
+  marginBottom: "20px", 
+  margin: "0 0 20px 0" 
 };
 
-const scoreCircle = {
-  width: "120px",
-  height: "120px",
-  borderRadius: "50%",
-  background: "linear-gradient(135deg, #14967f 0%, #095d7e 100%)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  margin: "0 0 16px 0",
+const progressBarContainer = { 
+  width: "100%", 
+  height: "12px", 
+  backgroundColor: "#ccecee", 
+  borderRadius: "6px", 
+  overflow: "hidden", 
+  marginBottom: "20px" 
 };
 
-const scoreNumber = {
-  color: "#ffffff",
-  fontSize: "36px",
-  fontWeight: "bold",
-  margin: "0",
+const progressBar = { 
+  height: "100%", 
+  backgroundColor: "#14967f", 
+  borderRadius: "6px"
 };
 
-const scoreDescriptionStyle = {
-  color: "#095d7e",
-  fontSize: "16px",
-  margin: "0",
-  textAlign: "center" as const,
+const scoreDescriptionStyle = { 
+  fontSize: "15px", 
+  color: "#095d7e", 
+  lineHeight: "24px", 
+  margin: "0" 
 };
 
-const statsSection = {
-  padding: "20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+const featuresSection = { 
+  padding: "50px 40px",
+  backgroundColor: "#f1f9ff"
 };
 
-const statColumn = {
-  textAlign: "center" as const,
-  padding: "0 10px",
+const featureColumn = { 
+  textAlign: "center" as const, 
+  padding: "30px 20px", 
+  verticalAlign: "top" as const 
 };
 
-const statNumber = {
-  color: "#14967f",
-  fontSize: "24px",
-  fontWeight: "bold",
-  margin: "0 0 4px 0",
+const featureIconTableWrapper = {
+  width: "80px",
+  height: "80px",
+  marginBottom: "20px"
 };
 
-const statLabel = {
-  color: "#095d7e",
-  fontSize: "14px",
-  margin: "0",
+const featureTitle = { 
+  fontSize: "16px", 
+  fontWeight: "700", 
+  color: "#095d7e", 
+  marginBottom: "10px", 
+  margin: "0 0 10px 0" 
 };
 
-const insightsSection = {
-  padding: "20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+const featureDescription = { 
+  fontSize: "13px", 
+  color: "#095d7e", 
+  lineHeight: "20px", 
+  margin: "0" 
 };
 
-const suggestionsSection = {
-  padding: "20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+const highlightSection = { 
+  backgroundColor: "#095d7e", 
+  color: "#f1f9ff", 
+  padding: "60px 40px", 
+  textAlign: "center" as const 
 };
 
-const warningsSection = {
-  padding: "20px",
-  backgroundColor: "#fff5f5",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  border: "1px solid #fed7d7",
+const highlightTitleStyle = { 
+  fontSize: "28px", 
+  fontWeight: "700", 
+  marginBottom: "16px", 
+  color: "#f1f9ff", 
+  margin: "0 0 16px 0" 
 };
 
-const sectionTitle = {
-  color: "#095d7e",
-  fontSize: "20px",
-  fontWeight: "bold",
-  margin: "0 0 16px 0",
+const highlightTextStyle = { 
+  fontSize: "14px", 
+  lineHeight: "24px", 
+  opacity: 0.95, 
+  color: "#f1f9ff", 
+  margin: "0" 
 };
 
-const insightItem = {
-  margin: "8px 0",
+const contentSection = { 
+  padding: "50px 40px",
+  backgroundColor: "#f1f9ff"
 };
 
-const insightText = {
-  color: "#14967f",
-  fontSize: "16px",
-  margin: "0",
+const contentTitle = { 
+  textAlign: "center" as const, 
+  fontSize: "36px", 
+  fontWeight: "700", 
+  color: "#14967f", 
+  marginBottom: "20px", 
+  margin: "0 0 20px 0",
+  fontStyle: "italic" as const,
+  letterSpacing: "-0.5px"
 };
 
-const suggestionItem = {
-  margin: "8px 0",
+const contentIntro = { 
+  textAlign: "center" as const, 
+  fontSize: "15px", 
+  color: "#095d7e", 
+  lineHeight: "26px", 
+  maxWidth: "500px", 
+  margin: "0 auto 50px" 
 };
 
-const suggestionText = {
-  color: "#14967f",
-  fontSize: "16px",
-  margin: "0",
+const listSection = { 
+  backgroundColor: "#e8f5f3", 
+  borderRadius: "16px", 
+  padding: "30px", 
+  marginBottom: "30px",
+  border: "1px solid #ccecee"
 };
 
-const warningItem = {
-  margin: "8px 0",
+const listTitle = { 
+  fontSize: "14px", 
+  fontWeight: "700", 
+  color: "#095d7e", 
+  textTransform: "uppercase" as const, 
+  letterSpacing: "1px", 
+  marginBottom: "20px", 
+  margin: "0 0 20px 0" 
 };
 
-const warningText = {
-  color: "#e53e3e",
-  fontSize: "16px",
-  margin: "0",
+const listItem = { 
+  marginBottom: "20px" 
 };
 
-const ctaSection = {
-  textAlign: "center" as const,
-  padding: "30px 20px",
-  backgroundColor: "#ffffff",
-  borderRadius: "16px",
-  margin: "20px 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+const bulletColumn = { 
+  width: "24px", 
+  verticalAlign: "top" as const, 
+  paddingTop: "8px" 
 };
 
-const ctaButton = {
-  backgroundColor: "#14967f",
-  color: "#ffffff",
-  padding: "16px 32px",
-  borderRadius: "12px",
-  textDecoration: "none",
-  fontSize: "18px",
-  fontWeight: "bold",
-  display: "inline-block",
-  margin: "0 0 16px 0",
+const bullet = { 
+  width: "8px", 
+  height: "8px", 
+  backgroundColor: "#14967f", 
+  borderRadius: "50%" 
 };
 
-const ctaText = {
-  color: "#095d7e",
-  fontSize: "16px",
-  margin: "0",
+const listContentColumn = { 
+  verticalAlign: "top" as const 
 };
 
-const hr = {
-  borderColor: "#e2fcd6",
-  margin: "20px 0",
+const listItemTitle = { 
+  fontSize: "15px", 
+  fontWeight: "600", 
+  color: "#14967f", 
+  marginBottom: "6px", 
+  margin: "0 0 6px 0" 
 };
 
-const footer = {
-  textAlign: "center" as const,
-  padding: "20px",
+const listItemText = { 
+  fontSize: "14px", 
+  color: "#095d7e", 
+  lineHeight: "22px", 
+  margin: "0" 
 };
 
-const footerText = {
-  color: "#14967f",
-  fontSize: "14px",
-  margin: "8px 0",
+const insightCard = { 
+  backgroundColor: "#e8f5f3", 
+  borderRadius: "16px", 
+  padding: "30px", 
+  marginBottom: "20px",
+  border: "1px solid #ccecee"
 };
 
-const footerLink = {
-  color: "#14967f",
-  textDecoration: "underline",
+const insightTitle = { 
+  fontSize: "18px", 
+  fontWeight: "700", 
+  color: "#095d7e", 
+  marginBottom: "12px", 
+  margin: "0 0 12px 0" 
 };
 
-export default AuraMonthlyReport;
+const insightText = { 
+  fontSize: "14px", 
+  color: "#095d7e", 
+  lineHeight: "22px", 
+  marginBottom: "20px", 
+  margin: "0 0 20px 0" 
+};
+
+const insightButton = { 
+  backgroundColor: "#14967f", 
+  color: "#f1f9ff", 
+  padding: "10px 24px", 
+  textDecoration: "none", 
+  borderRadius: "20px", 
+  fontWeight: "600", 
+  fontSize: "13px", 
+  textTransform: "uppercase" as const, 
+  letterSpacing: "0.5px", 
+  display: "inline-block" 
+};
+
+const footer = { 
+  backgroundColor: "#095d7e", 
+  color: "#f1f9ff", 
+  padding: "40px", 
+  textAlign: "center" as const 
+};
+
+const footerText = { 
+  fontSize: "13px", 
+  opacity: 0.9, 
+  lineHeight: "22px", 
+  marginBottom: "20px", 
+  color: "#f1f9ff", 
+  margin: "0 0 20px 0" 
+};
+
+const footerInfo = { 
+  fontSize: "12px", 
+  opacity: 0.8, 
+  letterSpacing: "0.5px", 
+  color: "#f1f9ff", 
+  margin: "0" 
+};
