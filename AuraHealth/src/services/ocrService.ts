@@ -121,7 +121,10 @@ export interface HealthAnalysis {
 
 // Removed unused dietary conflicts constant
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// Compute API base URL robustly: expect VITE_API_URL to be the backend root (no trailing /api)
+// Always append '/api' here to avoid duplication across services
+const API_ROOT = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/\/$/, '')
+const API_BASE_URL = `${API_ROOT}/api`;
 
 export class OCRService {
   static async processReceipt(imageData: string): Promise<ReceiptData> {

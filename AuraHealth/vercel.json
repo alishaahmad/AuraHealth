@@ -3,6 +3,6 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "https://aura-health-backend.vercel.app"
+    "VITE_API_URL": "https://aura-health-swdj-7xlr2dg1a-alishaahmads-projects.vercel.app"
   }
 }

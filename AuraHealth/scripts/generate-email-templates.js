@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { render } from '@react-email/components';
+// Import React to satisfy templates executed in Node during generation
+import React from 'react';
 import WelcomeEmail from '../src/components/WelcomeEmail.tsx';
 import AuraMonthlyReport from '../src/components/AuraMonthlyReport.tsx';
 

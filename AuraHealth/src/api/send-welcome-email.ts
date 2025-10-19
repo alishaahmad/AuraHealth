@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     );
 
     // Send to backend email service
-    const backendUrl = process.env.VITE_API_URL || 'http://localhost:8000';
+    const backendUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000';
     const response = await fetch(`${backendUrl}/api/send-email`, {
       method: 'POST',
       headers: {

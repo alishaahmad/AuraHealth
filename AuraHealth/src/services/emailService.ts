@@ -27,11 +27,7 @@ export class EmailService {
           month: emailData.month,
           year: emailData.year,
           auraScore: emailData.auraScore,
-          scoreDescription: emailData.scoreDescription,
-          totalReceipts: emailData.totalReceipts || 0,
-          healthInsights: emailData.healthInsights || [],
-          mealSuggestions: emailData.mealSuggestions || [],
-          warnings: emailData.warnings || []
+          scoreDescription: emailData.scoreDescription
         })
       );
 
